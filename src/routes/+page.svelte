@@ -16,8 +16,8 @@
 
 	const getCityExtent = () => {
 		const border = new Polygon([
-			[[-83.2877264711691, 42.2549612971133]],
-			[[-82.910343680423, 42.4503749373053]]
+			[[-84.2877264711691, 44.2549612971133]],
+			[[-82.010343680423, 40.6503749373053]]
 		]);
 
 		border.scale(1.2);
@@ -30,7 +30,7 @@
 	const center = getCenter(extent);
 
 	onMount(() => {
-		new Map({
+		let map = new Map({
 			target: 'map',
 			layers: [
 				new VectorLayer({
@@ -42,7 +42,7 @@
 			view: new View({
 				center,
 				extent,
-				zoom: 2
+				zoom: 11
 			})
 		});
 	});
@@ -53,6 +53,5 @@
 <style>
 	#map {
 		height: 100vh;
-		background-color: #04041b;
 	}
 </style>
