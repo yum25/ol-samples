@@ -7,7 +7,7 @@
 	import GeoJSON from 'ol/format/GeoJSON';
 
 	import { getCenter } from 'ol/extent';
-	import { Fill, Stroke, Style, Circle } from 'ol/style';
+	import { Fill, Stroke, Style, Text } from 'ol/style';
 
 	import counties from '$lib/references/community_boundaries.json';
 	import { onMount } from 'svelte';
@@ -36,13 +36,22 @@
 				new VectorLayer({
 					source: new VectorSource({
 						features: geojsonFormatter.readFeatures(counties)
-					})
+					}),
+					style: function (feature) {
+						return new Style({
+							text: new Text({ text: feature.get('name') }),
+							stroke: new Stroke({
+								color: 'gray',
+								width: 2
+							})
+						});
+					}
 				})
 			],
 			view: new View({
 				center,
 				extent,
-				zoom: 11
+				zoom: 2
 			})
 		});
 	});
