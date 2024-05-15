@@ -3,16 +3,15 @@
 	import View from 'ol/View.js';
 	import VectorSource from 'ol/source/Vector';
 	import VectorLayer from 'ol/layer/Vector';
-
 	import GeoJSON from 'ol/format/GeoJSON';
+	import Polygon from 'ol/geom/Polygon';
 
 	import { getCenter } from 'ol/extent';
+	import { Select, Translate, defaults as defaultInteractions } from 'ol/interaction.js';
 	import { Fill, Stroke, Style, Text } from 'ol/style';
 
 	import counties from '$lib/references/community_boundaries.json';
 	import { onMount } from 'svelte';
-
-	import Polygon from 'ol/geom/Polygon';
 
 	const getCityExtent = () => {
 		const border = new Polygon([
@@ -28,10 +27,15 @@
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCityExtent();
 	const center = getCenter(extent);
+	const select = new Select();
+	const translate = new Translate({
+		features: select.getFeatures()
+	});
 
 	onMount(() => {
 		let map = new Map({
 			target: 'map',
+			interactions: defaultInteractions().extend([select, translate]),
 			layers: [
 				new VectorLayer({
 					source: new VectorSource({
@@ -43,6 +47,9 @@
 							stroke: new Stroke({
 								color: 'gray',
 								width: 2
+							}),
+							fill: new Fill({
+								color: 'white'
 							})
 						});
 					}
