@@ -7,13 +7,13 @@
 	import Polygon from 'ol/geom/Polygon';
 
 	import { getCenter } from 'ol/extent';
-	import { Select, Translate, defaults as defaultInteractions } from 'ol/interaction.js';
+	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
 	import { Fill, Stroke, Style, Text } from 'ol/style';
 
-	import counties from '$lib/references/community_boundaries.json';
+	import counties from '$lib/references/counties.json';
 	import { onMount } from 'svelte';
 
-	const getCityExtent = () => {
+	const getCountiesExtent = () => {
 		const border = new Polygon([
 			[[-84.2877264711691, 44.2549612971133]],
 			[[-82.010343680423, 40.6503749373053]]
@@ -25,11 +25,17 @@
 	};
 
 	const geojsonFormatter = new GeoJSON();
-	const extent = getCityExtent();
+	const extent = getCountiesExtent();
 	const center = getCenter(extent);
 	const select = new Select();
 	const translate = new Translate({
 		features: select.getFeatures()
+	});
+
+	const snap = new Snap({
+		source: new VectorSource({
+			features: geojsonFormatter.readFeatures(counties)
+		})
 	});
 
 	onMount(() => {
@@ -58,9 +64,13 @@
 			view: new View({
 				center,
 				extent,
-				zoom: 2
+				zoom: 27,
+				minZoom: 0,
+				maxZoom: 100,
 			})
 		});
+
+		map.addInteraction(snap);
 	});
 </script>
 
