@@ -1,4 +1,5 @@
 import json
+import copy
 
 def borders_detroit(county):
     borders = ["Detroit", 
@@ -27,8 +28,19 @@ def borders_detroit(county):
 
     return county["properties"]["name"] in borders
 
+def is_detroit(county):
+    counties = ["Detroit"]
+
+    return county["properties"]["name"] in counties
+
 counties = json.load(open('./data/community_boundaries.json'))
 counties["features"] = list(filter(borders_detroit, counties["features"]))
 
+detroit = copy.deepcopy(counties)
+detroit["features"] = list(filter(is_detroit, detroit["features"]))
+
 with open("./src/lib/references/counties.json", "w+") as f:
     json.dump(counties, f)
+
+with open("./src/lib/references/detroit.json", "w+") as f:
+    json.dump(detroit, f)

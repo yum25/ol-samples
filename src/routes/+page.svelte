@@ -11,6 +11,7 @@
 	import { Fill, Stroke, Style, Text } from 'ol/style';
 
 	import counties from '$lib/references/counties.json';
+	import detroit from '$lib/references/detroit.json';
 	import { onMount } from 'svelte';
 
 	const getCountiesExtent = () => {
@@ -27,14 +28,18 @@
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
 	const center = getCenter(extent);
-	const select = new Select();
+	const select = new Select({
+		filter: function (feature) {
+			return feature.get('name') !== "Detroit"
+		}
+	});
 	const translate = new Translate({
 		features: select.getFeatures()
 	});
 
 	const snap = new Snap({
 		source: new VectorSource({
-			features: geojsonFormatter.readFeatures(counties)
+			features: geojsonFormatter.readFeatures(detroit)
 		})
 	});
 
