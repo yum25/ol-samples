@@ -13,11 +13,12 @@
 	import counties from '$lib/references/counties.json';
 	import detroit from '$lib/references/detroit.json';
 	import { onMount } from 'svelte';
+	import { useGeographic } from 'ol/proj';
 
 	const getCountiesExtent = () => {
 		const border = new Polygon([
 			[[-84.2877264711691, 44.2549612971133]],
-			[[-82.010343680423, 40.6503749373053]]
+			[[-82.010343680423, 40.5503749373053]]
 		]);
 
 		border.scale(1.2);
@@ -44,6 +45,7 @@
 	});
 
 	onMount(() => {
+		useGeographic();
 		let map = new Map({
 			target: 'map',
 			interactions: defaultInteractions().extend([select, translate]),
@@ -69,9 +71,9 @@
 			view: new View({
 				center,
 				extent,
-				zoom: 27,
-				minZoom: 0,
-				maxZoom: 100,
+				zoom: 11,
+				minZoom: 11,
+				maxZoom: 17
 			})
 		});
 
