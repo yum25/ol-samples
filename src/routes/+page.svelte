@@ -31,7 +31,7 @@
 	const center = getCenter(extent);
 	const select = new Select({
 		filter: function (feature) {
-			return feature.get('name') !== "Detroit"
+			return feature.get('name') !== 'Detroit';
 		}
 	});
 	const translate = new Translate({
@@ -56,13 +56,13 @@
 					}),
 					style: function (feature) {
 						return new Style({
-							text: new Text({ text: feature.get('name') }),
+							text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
 							stroke: new Stroke({
 								color: 'gray',
 								width: 2
 							}),
 							fill: new Fill({
-								color: 'white'
+								color: feature.get('name') === "Detroit" ? 'rgb(119, 174, 116)' : 'white'
 							})
 						});
 					}
