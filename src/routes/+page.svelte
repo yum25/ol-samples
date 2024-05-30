@@ -40,6 +40,9 @@
 					color: 'blue',
 					width: 4
 				}),
+				fill: new Fill({
+					color: 'white'
+				})
 			});
 		}
 	});
