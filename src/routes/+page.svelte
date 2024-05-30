@@ -17,8 +17,8 @@
 
 	const getCountiesExtent = () => {
 		const border = new Polygon([
-			[[-84.2877264711691, 44.2549612971133]],
-			[[-82.010343680423, 40.5503749373053]]
+			[[-83.7877264711691, 42.6549612971133]],
+			[[-82.510343680423, 42.0503749373053]]
 		]);
 
 		border.scale(1.2);
@@ -32,8 +32,18 @@
 	const select = new Select({
 		filter: function (feature) {
 			return feature.get('name') !== 'Detroit';
+		},
+		style: function (feature) {
+			return new Style({
+				text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow: true }),
+				stroke: new Stroke({
+					color: 'blue',
+					width: 4
+				}),
+			});
 		}
 	});
+
 	const translate = new Translate({
 		features: select.getFeatures()
 	});
@@ -62,7 +72,7 @@
 								width: 2
 							}),
 							fill: new Fill({
-								color: feature.get('name') === "Detroit" ? 'rgb(119, 174, 116)' : 'white'
+								color: feature.get('name') === 'Detroit' ? 'rgb(119, 174, 116)' : 'white'
 							})
 						});
 					}
@@ -71,8 +81,8 @@
 			view: new View({
 				center,
 				extent,
-				zoom: 11,
-				minZoom: 11,
+				zoom: 0,
+				minZoom: 0,
 				maxZoom: 17
 			})
 		});
