@@ -57,6 +57,10 @@
 		})
 	});
 
+	translate.on('translateend', (e) => {
+		console.log(getCenter(e.features.getArray()[0].getGeometry().getExtent()));
+	});
+
 	onMount(() => {
 		useGeographic();
 		let map = new Map({
@@ -89,6 +93,8 @@
 				maxZoom: 17
 			})
 		});
+
+		console.log(map.getLayers().getArray()[0]!.getSource().getFeatures() )
 
 		map.addInteraction(snap);
 	});
