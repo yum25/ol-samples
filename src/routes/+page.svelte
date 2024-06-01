@@ -29,22 +29,38 @@
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
 	const center = getCenter(extent);
+
+	const style = function (feature) {
+		const currentCenter = getCenter(feature.getGeometry()?.getExtent());
+		const defaultCenter = getCenter(defaultGeometries[feature.get('name')].getExtent());
+
+		return new Style({
+			text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
+			stroke: new Stroke({
+				color: 'gray',
+				width: 2
+			}),
+			fill: new Fill({
+				color:
+					currentCenter[0] === defaultCenter[0] && currentCenter[1] === defaultCenter[1]
+						? 'rgb(119, 174, 116)'
+						: 'white'
+			})
+		});
+	};
+
+	const base = new VectorLayer({
+		source: new VectorSource({
+			features: geojsonFormatter.readFeatures(counties)
+		}),
+		style
+	});
+
 	const select = new Select({
 		filter: function (feature) {
 			return feature.get('name') !== 'Detroit';
 		},
-		style: function (feature) {
-			return new Style({
-				text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow: true }),
-				stroke: new Stroke({
-					color: 'blue',
-					width: 4
-				}),
-				fill: new Fill({
-					color: 'white'
-				})
-			});
-		}
+		style
 	});
 
 	const translate = new Translate({
@@ -61,30 +77,22 @@
 		console.log(getCenter(e.features.getArray()[0].getGeometry().getExtent()));
 	});
 
+	const defaultGeometries = base
+		.getSource()
+		.getFeatures()
+		.reduce(
+			(dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone().getGeometry() }),
+			{}
+		);
+	console.log(defaultGeometries);
+
 	onMount(() => {
 		useGeographic();
+
 		let map = new Map({
 			target: 'map',
 			interactions: defaultInteractions().extend([select, translate]),
-			layers: [
-				new VectorLayer({
-					source: new VectorSource({
-						features: geojsonFormatter.readFeatures(counties)
-					}),
-					style: function (feature) {
-						return new Style({
-							text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
-							stroke: new Stroke({
-								color: 'gray',
-								width: 2
-							}),
-							fill: new Fill({
-								color: feature.get('name') === 'Detroit' ? 'rgb(119, 174, 116)' : 'white'
-							})
-						});
-					}
-				})
-			],
+			layers: [base],
 			view: new View({
 				center,
 				extent,
@@ -93,8 +101,6 @@
 				maxZoom: 17
 			})
 		});
-
-		console.log(map.getLayers().getArray()[0]!.getSource().getFeatures() )
 
 		map.addInteraction(snap);
 	});
