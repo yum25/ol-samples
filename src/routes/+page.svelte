@@ -34,16 +34,13 @@
 	const extent = getCountiesExtent();
 	const center = getCenter(extent);
 
-	const style = function (feature) {
+	const style = (stroke, overflow) => function (feature) {
 		const currentCenter = getCenter(feature.getGeometry()?.getExtent());
 		const defaultCenter = getCenter(defaultGeometries[feature.get('name')].getExtent());
 
 		return new Style({
-			text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
-			stroke: new Stroke({
-				color: 'gray',
-				width: 2
-			}),
+			text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow }),
+			stroke,
 			fill: new Fill({
 				color:
 					currentCenter[0] === defaultCenter[0] && currentCenter[1] === defaultCenter[1]
@@ -57,14 +54,20 @@
 		source: new VectorSource({
 			features: geojsonFormatter.readFeatures(counties)
 		}),
-		style
+		style: style(new Stroke({
+				color: "gray",
+				width: 2
+			}), false)
 	});
 
 	const select = new Select({
 		filter: function (feature) {
 			return feature.get('name') !== 'Detroit';
 		},
-		style
+		style: style(new Stroke({
+				color: "blue",
+				width: 4
+			}), true)
 	});
 
 	const translate = new Translate({
