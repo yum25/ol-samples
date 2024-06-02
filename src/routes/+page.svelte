@@ -15,6 +15,10 @@
 	import { onMount } from 'svelte';
 	import { useGeographic } from 'ol/proj';
 
+	// FIXME: hit tolerance only works once because we set the geometry permanently to the reference of the default geometry
+	// FIXME: numerous type errors and repeated code
+	// FIXME: need to add border highlight for select styling
+
 	const getCountiesExtent = () => {
 		const border = new Polygon([
 			[[-83.7877264711691, 42.6549612971133]],
@@ -74,7 +78,12 @@
 	});
 
 	translate.on('translateend', (e) => {
-		console.log(getCenter(e.features.getArray()[0].getGeometry().getExtent()));
+		const newCenter = getCenter(e.features.getArray()[0].getGeometry().getExtent());
+		const oldCenter = getCenter(defaultGeometries[e.features.getArray()[0].get('name')].getExtent())
+
+		if (Math.hypot(Math.abs(newCenter[0] - oldCenter[0]), Math.abs(newCenter[1] - oldCenter[1])) < 0.01) {
+			e.features.getArray()[0].setGeometry(defaultGeometries[e.features.getArray()[0].get('name')]);
+		}
 	});
 
 	const defaultGeometries = base
@@ -84,7 +93,6 @@
 			(dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone().getGeometry() }),
 			{}
 		);
-	console.log(defaultGeometries);
 
 	onMount(() => {
 		useGeographic();
