@@ -33,8 +33,8 @@
 			return new Style({
 				text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
 				stroke: new Stroke({
-					color: 'gray',
-					width: 2
+					color: 'black',
+					width: 1
 				}),
 				fill: getFill(feature, defaultGeometries[feature.get("name")])
 			});
@@ -58,6 +58,7 @@
 					color: 'blue',
 					width: 4
 				}),
+				zIndex: 1,
 				fill: getFill(feature, defaultGeometries[feature.get("name")])
 			});
 		}
@@ -87,6 +88,7 @@
 			target: 'map',
 			interactions: defaultInteractions().extend([select, translate]),
 			layers: [base],
+			controls: [],
 			view: new View({
 				center,
 				extent,
