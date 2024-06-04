@@ -13,7 +13,6 @@
 
 	import { onMount } from 'svelte';
 	
-
 	import { getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
 
