@@ -4,34 +4,22 @@
 	import VectorSource from 'ol/source/Vector';
 	import VectorLayer from 'ol/layer/Vector';
 	import GeoJSON from 'ol/format/GeoJSON';
-	import Polygon from 'ol/geom/Polygon';
 
 	import { getCenter } from 'ol/extent';
 	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
-	import { Fill, Stroke, Style, Text } from 'ol/style';
-
-	import counties from '$lib/references/counties.json';
-	import detroit from '$lib/references/detroit.json';
-	import { onMount } from 'svelte';
+	import { Stroke, Style, Text } from 'ol/style';
 	import { useGeographic } from 'ol/proj';
 	import type { Feature } from 'ol';
 	import type { Geometry } from 'ol/geom';
-	import type { FeatureLike } from 'ol/Feature';
 
-	const getCountiesExtent = () => {
-		const border = new Polygon([
-			[[-83.7877264711691, 42.6549612971133]],
-			[[-82.510343680423, 42.0503749373053]]
-		]);
+	import { onMount } from 'svelte';
+	
 
-		border.scale(1.2);
+	import { getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
+	import { getFill } from '$lib/styles';
 
-		return border.getExtent();
-	};
-
-	const getFeatureCenter = (feature: FeatureLike) => {
-		return getCenter((feature.getGeometry() as Geometry).getExtent());
-	};
+	import counties from '$lib/references/counties.json';
+	import detroit from '$lib/references/detroit.json';
 
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
@@ -42,52 +30,38 @@
 			features: geojsonFormatter.readFeatures(counties)
 		}),
 		style: function (feature) {
-			const currentCenter = getFeatureCenter(feature);
-			const defaultCenter = getFeatureCenter(defaultGeometries[feature.get('name')]);
-
 			return new Style({
 				text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
 				stroke: new Stroke({
 					color: 'gray',
 					width: 2
 				}),
-				fill: new Fill({
-					color:
-						currentCenter[0] === defaultCenter[0] && currentCenter[1] === defaultCenter[1]
-							? 'rgb(119, 174, 116)'
-							: 'white'
-				})
+				fill: getFill(feature, defaultGeometries[feature.get("name")])
 			});
 		}
 	});
+
+	const defaultGeometries: Record<string, Feature> = (
+		base.getSource() as VectorSource<Feature<Geometry>>
+	)
+		.getFeatures()
+		.reduce((dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone() }), {});
 
 	const select = new Select({
 		filter: function (feature) {
 			return feature.get('name') !== 'Detroit';
 		},
 		style: function (feature) {
-			const currentCenter = getFeatureCenter(feature);
-			const defaultCenter = getFeatureCenter(defaultGeometries[feature.get('name')]);
-
 			return new Style({
 				text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow: true }),
 				stroke: new Stroke({
 					color: 'blue',
 					width: 4
 				}),
-				fill: new Fill({
-					color:
-						currentCenter[0] === defaultCenter[0] && currentCenter[1] === defaultCenter[1]
-							? 'rgb(119, 174, 116)'
-							: 'white'
-				})
+				fill: getFill(feature, defaultGeometries[feature.get("name")])
 			});
 		}
 	});
-
-	const defaultGeometries:Record<string, Feature> = (base.getSource() as VectorSource<Feature<Geometry>>)
-		.getFeatures()
-		.reduce((dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone() }), {});
 
 	const translate = new Translate({
 		features: select.getFeatures()
@@ -100,16 +74,9 @@
 	});
 
 	translate.on('translateend', (e) => {
-		const newCenter = getFeatureCenter(e.features.getArray()[0]);
-		const oldCenter = getFeatureCenter(defaultGeometries[e.features.getArray()[0].get('name')]);
-
-		if (
-			Math.hypot(Math.abs(newCenter[0] - oldCenter[0]), Math.abs(newCenter[1] - oldCenter[1])) <
-			0.01
-		) {
-			e.features
-				.getArray()[0]
-				.setGeometry(defaultGeometries[e.features.getArray()[0].get('name')].clone().getGeometry());
+		const feature = e.features.getArray()[0];
+		if (getDistanceFromDefault(feature, defaultGeometries[feature.get('name')]) < 0.01) {
+			feature.setGeometry(defaultGeometries[feature.get('name')].clone().getGeometry());
 		}
 	});
 
