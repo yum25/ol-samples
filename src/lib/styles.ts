@@ -1,9 +1,9 @@
-import { Fill } from "ol/style";
+import { Style, Fill, Stroke, Text } from "ol/style";
 import type { FeatureLike } from "ol/Feature";
 
 import { getFeatureCenter } from "./utils";
 
-export const getFill = (feature: FeatureLike, defaultFeature: FeatureLike) => {
+const getFill = (feature: FeatureLike, defaultFeature: FeatureLike) => {
     const currentCenter = getFeatureCenter(feature);
     const defaultCenter = getFeatureCenter(defaultFeature);
 
@@ -14,3 +14,26 @@ export const getFill = (feature: FeatureLike, defaultFeature: FeatureLike) => {
                 : 'white'
     });
 };
+
+export const baseStyle = (feature: FeatureLike, defaultFeature: FeatureLike) => {
+    return new Style({
+        text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
+        stroke: new Stroke({
+            color: 'black',
+            width: 1
+        }),
+        fill: getFill(feature, defaultFeature)
+    });
+}
+
+export const selectStyle = (feature: FeatureLike, defaultFeature: FeatureLike) => {
+    return new Style({
+        text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow: true }),
+        stroke: new Stroke({
+            color: 'blue',
+            width: 4
+        }),
+        zIndex: 1,
+        fill: getFill(feature, defaultFeature)
+    });
+}

@@ -7,7 +7,6 @@
 
 	import { getCenter } from 'ol/extent';
 	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
-	import { Stroke, Style, Text } from 'ol/style';
 	import { useGeographic } from 'ol/proj';
 	import type { Feature } from 'ol';
 	import type { Geometry } from 'ol/geom';
@@ -16,7 +15,7 @@
 	
 
 	import { getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
-	import { getFill } from '$lib/styles';
+	import { baseStyle, selectStyle } from '$lib/styles';
 
 	import counties from '$lib/references/counties.json';
 	import detroit from '$lib/references/detroit.json';
@@ -29,16 +28,7 @@
 		source: new VectorSource({
 			features: geojsonFormatter.readFeatures(counties)
 		}),
-		style: function (feature) {
-			return new Style({
-				text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
-				stroke: new Stroke({
-					color: 'black',
-					width: 1
-				}),
-				fill: getFill(feature, defaultGeometries[feature.get("name")])
-			});
-		}
+		style: (feature) => baseStyle(feature, defaultGeometries[feature.get('name')])
 	});
 
 	const defaultGeometries: Record<string, Feature> = (
@@ -48,20 +38,8 @@
 		.reduce((dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone() }), {});
 
 	const select = new Select({
-		filter: function (feature) {
-			return feature.get('name') !== 'Detroit';
-		},
-		style: function (feature) {
-			return new Style({
-				text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow: true }),
-				stroke: new Stroke({
-					color: 'blue',
-					width: 4
-				}),
-				zIndex: 1,
-				fill: getFill(feature, defaultGeometries[feature.get("name")])
-			});
-		}
+		filter: (feature) => feature.get('name') !== 'Detroit',
+		style: (feature) => selectStyle(feature, defaultGeometries[feature.get('name')])
 	});
 
 	const translate = new Translate({
