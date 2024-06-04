@@ -27,10 +27,10 @@
 		source: new VectorSource({
 			features: geojsonFormatter.readFeatures(counties)
 		}),
-		style: (feature) => baseStyle(feature, defaultGeometries[feature.get('name')])
+		style: (feature) => baseStyle(feature, defaultFeatures[feature.get('name')])
 	});
 
-	const defaultGeometries: Record<string, Feature> = (
+	const defaultFeatures: Record<string, Feature> = (
 		base.getSource() as VectorSource<Feature<Geometry>>
 	)
 		.getFeatures()
@@ -38,7 +38,7 @@
 
 	const select = new Select({
 		filter: (feature) => feature.get('name') !== 'Detroit',
-		style: (feature) => selectStyle(feature, defaultGeometries[feature.get('name')])
+		style: (feature) => selectStyle(feature, defaultFeatures[feature.get('name')])
 	});
 
 	const translate = new Translate({
@@ -53,8 +53,8 @@
 
 	translate.on('translateend', (e) => {
 		const feature = e.features.getArray()[0];
-		if (getDistanceFromDefault(feature, defaultGeometries[feature.get('name')]) < 0.01) {
-			feature.setGeometry(defaultGeometries[feature.get('name')].clone().getGeometry());
+		if (getDistanceFromDefault(feature, defaultFeatures[feature.get('name')]) < 0.01) {
+			feature.setGeometry(defaultFeatures[feature.get('name')].clone().getGeometry());
 		}
 	});
 
