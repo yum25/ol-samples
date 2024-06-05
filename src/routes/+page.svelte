@@ -9,15 +9,16 @@
 	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
 	import { useGeographic } from 'ol/proj';
 	import type { Feature } from 'ol';
-	import type { Geometry } from 'ol/geom';
+	import { Polygon, type Geometry } from 'ol/geom';
 
 	import { onMount } from 'svelte';
-	
+
 	import { getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
 
 	import counties from '$lib/references/counties.json';
 	import detroit from '$lib/references/detroit.json';
+	import coords from '$lib/references/coords.json';
 
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
@@ -73,6 +74,12 @@
 				minZoom: 0,
 				maxZoom: 17
 			})
+		});
+
+		(base.getSource() as VectorSource<Feature<Geometry>>).getFeatures().forEach((feature) => {
+			if (Object.keys(coords).includes(feature.get('name')) ) {
+				feature.setGeometry(new Polygon(coords[feature.get('name')]));
+			}
 		});
 
 		map.addInteraction(snap);

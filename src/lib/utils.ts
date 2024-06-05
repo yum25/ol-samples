@@ -5,8 +5,8 @@ import type {Geometry} from "ol/geom";
 
 export const getCountiesExtent = () => {
     const border = new Polygon([
-        [[-83.7877264711691, 42.6549612971133]],
-        [[-82.510343680423, 42.0503749373053]]
+        [[-83.6877264711691, 42.5049612971133]],
+        [[-82.910343680423, 42.1803749373053]]
     ]);
 
     border.scale(1.2);
