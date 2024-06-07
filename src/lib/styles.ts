@@ -3,37 +3,44 @@ import type { FeatureLike } from "ol/Feature";
 
 import { getFeatureCenter } from "./utils";
 
-const getFill = (feature: FeatureLike, defaultFeature: FeatureLike) => {
+const coordinatesEqual = (a:number[], b:number[]) => a[0] === b[0] && a[1] === b[1]
+
+const getStroke = (feature: FeatureLike, defaultFeature: FeatureLike, width: number, color: string) => {
     const currentCenter = getFeatureCenter(feature);
     const defaultCenter = getFeatureCenter(defaultFeature);
 
-    return new Fill({
-        color:
-            currentCenter[0] === defaultCenter[0] && currentCenter[1] === defaultCenter[1]
-                ? 'rgb(119, 174, 116)'
-                : 'white'
+    return new Stroke({
+        color,
+        width,
+        lineDash: coordinatesEqual(currentCenter, defaultCenter) ? undefined : [10, 5]
     });
 };
 
 export const baseStyle = (feature: FeatureLike, defaultFeature: FeatureLike) => {
     return new Style({
-        text: new Text({ text: feature.get('name'), font: '12px sans-serif' }),
-        stroke: new Stroke({
-            color: 'black',
-            width: 1
-        }),
-        fill: getFill(feature, defaultFeature)
+        text: new Text({ text: feature.get('name'), font: '14px sans-serif' }),
+        stroke: getStroke(
+            feature,
+            defaultFeature,
+            3, 'gray'),
+        fill: new Fill({
+            color: "transparent"
+        })
     });
 }
 
 export const selectStyle = (feature: FeatureLike, defaultFeature: FeatureLike) => {
     return new Style({
-        text: new Text({ text: feature.get('name'), font: '12px sans-serif', overflow: true }),
-        stroke: new Stroke({
-            color: 'blue',
-            width: 4
-        }),
+        text: new Text({ text: feature.get('name'), font: '14px sans-serif', overflow: true }),
+        stroke: getStroke(
+            feature,
+            defaultFeature,
+            5,
+            '#3489eb',
+        ),
         zIndex: 1,
-        fill: getFill(feature, defaultFeature)
+        fill: new Fill({
+            color: "transparent"
+        })
     });
 }

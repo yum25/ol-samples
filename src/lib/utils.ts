@@ -2,6 +2,16 @@ import { Polygon } from "ol/geom";
 import { getCenter } from "ol/extent";
 import type { FeatureLike } from "ol/Feature";
 import type {Geometry} from "ol/geom";
+import VectorTile from 'ol/source/VectorTile';
+import MVT from 'ol/format/MVT';
+
+export const baseSource = new VectorTile({
+	attributions:
+		'Sources: Esri, HERE, Garmin, FAO, NOAA, USGS, © OpenStreetMap contributors, and the GIS User Community',
+	url: 'https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer/tile/{z}/{y}/{x}.pbf',
+	format: new MVT(),
+	maxZoom: 17
+});
 
 export const getCountiesExtent = () => {
     const border = new Polygon([

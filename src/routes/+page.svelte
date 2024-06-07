@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Map from 'ol/Map.js';
+	import CanvasMap from 'ol/Map.js';
 	import View from 'ol/View.js';
 	import VectorSource from 'ol/source/Vector';
 	import VectorLayer from 'ol/layer/Vector';
@@ -20,11 +20,22 @@
 	import detroit from '$lib/references/detroit.json';
 	import coords from '$lib/references/coords.json';
 
+	import { VectorTile } from 'ol/layer';
+	import { baseSource } from '$lib//utils';
+	import styles from '$lib/styles.json';
+
+	import { stylefunction } from 'ol-mapbox-style';
+
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
 	const center = getCenter(extent);
 
-	const base = new VectorLayer({
+	const baseLayer = new VectorTile({
+		declutter: true,
+		source: baseSource
+	});
+
+	const countyLayer = new VectorLayer({
 		source: new VectorSource({
 			features: geojsonFormatter.readFeatures(counties)
 		}),
@@ -32,7 +43,7 @@
 	});
 
 	const defaultFeatures: Record<string, Feature> = (
-		base.getSource() as VectorSource<Feature<Geometry>>
+		countyLayer.getSource() as VectorSource<Feature<Geometry>>
 	)
 		.getFeatures()
 		.reduce((dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone() }), {});
@@ -62,21 +73,23 @@
 	onMount(() => {
 		useGeographic();
 
-		let map = new Map({
+		let map = new CanvasMap({
 			target: 'map',
 			interactions: defaultInteractions().extend([select, translate]),
-			layers: [base],
+			layers: [baseLayer, countyLayer],
 			controls: [],
 			view: new View({
 				center,
 				extent,
-				zoom: 0,
-				minZoom: 0,
+				zoom: 11,
+				minZoom: 11,
 				maxZoom: 17
 			})
 		});
 
-		(base.getSource() as VectorSource<Feature<Geometry>>).getFeatures().forEach((feature) => {
+		stylefunction(baseLayer, styles, 'esri');
+
+		(countyLayer.getSource() as VectorSource<Feature<Geometry>>).getFeatures().forEach((feature) => {
 			if (Object.keys(coords).includes(feature.get('name')) ) {
 				feature.setGeometry(new Polygon(coords[feature.get('name')]));
 			}
