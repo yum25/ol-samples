@@ -42,7 +42,7 @@
 		source: new VectorSource({
 			features: geojsonFormatter.readFeatures(counties)
 		}),
-		style: (feature) => baseStyle(feature, defaultFeatures[feature.get('name')])
+		style: (feature) => baseStyle(feature)
 	});
 
 	const view = new View({
@@ -53,15 +53,9 @@
 		maxZoom: 17
 	});
 
-	const defaultFeatures: Record<string, Feature> = (
-		countyLayer.getSource() as VectorSource<Feature<Geometry>>
-	)
-		.getFeatures()
-		.reduce((dict, feature) => ({ ...dict, [feature.get('name')]: feature.clone() }), {});
-
 	const select = new Select({
 		filter: (feature) => feature.get('name') !== 'Detroit',
-		style: (feature) => selectStyle(feature, defaultFeatures[feature.get('name')])
+		style: (feature) => selectStyle(feature)
 	});
 
 	const translate = new Translate({
@@ -76,8 +70,8 @@
 
 	translate.on('translateend', (e) => {
 		const feature = e.features.getArray()[0];
-		if (getDistanceFromDefault(feature, defaultFeatures[feature.get('name')]) < 0.01) {
-			feature.setGeometry(defaultFeatures[feature.get('name')].clone().getGeometry());
+		if (getDistanceFromDefault(feature) < 0.01) {
+			feature.setGeometry(feature.get('default').clone().getGeometry());
 		}
 	});
 
@@ -95,6 +89,7 @@
 		(countyLayer.getSource() as VectorSource<Feature<Geometry>>)
 			.getFeatures()
 			.forEach((feature) => {
+				feature.set('default', feature.clone());
 				if (Object.keys(coords).includes(feature.get('name'))) {
 					feature.setGeometry(new Polygon(coords[feature.get('name')]));
 				}
@@ -106,17 +101,13 @@
 
 <div id="map"></div>
 <div id="info">
-	<button class="button window">
-		―
-	</button>
+	<button class="button window"> ― </button>
 	<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-	<button class="button command">
-		Finish
-	</button>
+	<button class="button command"> Finish </button>
 </div>
 
 <button class="button nav search">⌕</button>
-	
+
 <button
 	class="button nav left"
 	on:click={() =>
@@ -137,13 +128,12 @@
 		position: absolute;
 		top: 2%;
 		left: 2%;
-		
+
 		max-width: 30rem;
 		border-radius: 0.5rem;
 		background: white;
 
 		padding: 1rem;
-
 	}
 
 	.button {

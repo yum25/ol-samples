@@ -28,9 +28,9 @@ export const getFeatureCenter = (feature: FeatureLike) => {
     return getCenter((feature.getGeometry() as Geometry).getExtent());
 };
 
-export const getDistanceFromDefault = (feature: FeatureLike, defaultFeature: FeatureLike) => {
+export const getDistanceFromDefault = (feature: FeatureLike) => {
     const newCenter = getFeatureCenter(feature);
-    const oldCenter = getFeatureCenter(defaultFeature);
+    const oldCenter = getFeatureCenter(feature.get('default'));
 
     return Math.hypot(Math.abs(newCenter[0] - oldCenter[0]), Math.abs(newCenter[1] - oldCenter[1]));
 };
