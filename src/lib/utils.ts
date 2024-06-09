@@ -15,7 +15,7 @@ export const baseSource = new VectorTile({
 
 export const getCountiesExtent = () => {
     const border = new Polygon([
-        [[-83.6577264711691, 42.5249612971133]],
+        [[-83.6577264711691, 42.5449612971133]],
         [[-82.910343680423, 42.2003749373053]]
     ]);
 
