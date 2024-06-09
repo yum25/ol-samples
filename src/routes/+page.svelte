@@ -26,6 +26,9 @@
 
 	import { stylefunction } from 'ol-mapbox-style';
 
+	let map: CanvasMap;
+	useGeographic();
+
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
 	const center = getCenter(extent);
@@ -40,6 +43,14 @@
 			features: geojsonFormatter.readFeatures(counties)
 		}),
 		style: (feature) => baseStyle(feature, defaultFeatures[feature.get('name')])
+	});
+
+	const view = new View({
+		center,
+		extent,
+		zoom: 11,
+		minZoom: 11,
+		maxZoom: 17
 	});
 
 	const defaultFeatures: Record<string, Feature> = (
@@ -71,37 +82,123 @@
 	});
 
 	onMount(() => {
-		useGeographic();
-
-		let map = new CanvasMap({
+		map = new CanvasMap({
 			target: 'map',
 			interactions: defaultInteractions().extend([select, translate]),
 			layers: [baseLayer, countyLayer],
 			controls: [],
-			view: new View({
-				center,
-				extent,
-				zoom: 11,
-				minZoom: 11,
-				maxZoom: 17
-			})
+			view
 		});
 
 		stylefunction(baseLayer, styles, 'esri');
 
-		(countyLayer.getSource() as VectorSource<Feature<Geometry>>).getFeatures().forEach((feature) => {
-			if (Object.keys(coords).includes(feature.get('name')) ) {
-				feature.setGeometry(new Polygon(coords[feature.get('name')]));
-			}
-		});
+		(countyLayer.getSource() as VectorSource<Feature<Geometry>>)
+			.getFeatures()
+			.forEach((feature) => {
+				if (Object.keys(coords).includes(feature.get('name'))) {
+					feature.setGeometry(new Polygon(coords[feature.get('name')]));
+				}
+			});
 
 		map.addInteraction(snap);
 	});
 </script>
 
 <div id="map"></div>
+<div id="info">
+	<button class="button window">
+		―
+	</button>
+	<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
+	<button class="button command">
+		Finish
+	</button>
+</div>
+
+<button class="button nav search">⌕</button>
+	
+<button
+	class="button nav left"
+	on:click={() =>
+		view.animate({ center: [-83.58403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
+>
+	⟨
+</button>
+<button
+	class="button nav right"
+	on:click={() =>
+		view.animate({ center: [-83.08403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
+>
+	⟩
+</button>
 
 <style>
+	#info {
+		position: absolute;
+		top: 2%;
+		left: 2%;
+		
+		max-width: 30rem;
+		border-radius: 0.5rem;
+		background: white;
+
+		padding: 1rem;
+
+	}
+
+	.button {
+		background: white;
+		border: none;
+	}
+
+	.window {
+		height: 1.5rem;
+
+		outline: 1px solid rgb(231, 231, 231);
+		font-weight: bold;
+	}
+
+	.command {
+		background: rgb(2, 176, 2);
+		border-radius: 0.15rem;
+		padding: 0.5rem;
+
+		color: white;
+		font-weight: bold;
+		font-size: 1rem;
+		text-transform: uppercase;
+	}
+
+	.nav {
+		position: absolute;
+		top: 50%;
+
+		height: 4rem;
+		width: 4rem;
+		border-radius: 50%;
+		font-size: 2.5rem;
+
+		background: white;
+		border: none;
+		opacity: 60%;
+	}
+
+	.nav:hover {
+		opacity: 100%;
+	}
+
+	.search {
+		top: 2%;
+		right: 2%;
+	}
+
+	.left {
+		left: 1%;
+	}
+
+	.right {
+		right: 1%;
+	}
 	#map {
 		height: 100vh;
 	}
