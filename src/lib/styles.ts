@@ -16,10 +16,24 @@ const getStroke = (feature: FeatureLike, width: number, color: string) => {
 	});
 };
 
+const text = (feature: FeatureLike, color: string) =>
+	new Text({
+		text: feature.get('name'),
+		fill: new Fill({
+			color
+		}),
+		stroke: new Stroke({
+			color: 'white',
+			width: 3
+		}),
+		font: '14px sans-serif',
+		overflow: true
+	});
+
 export const baseStyle = (feature: FeatureLike) => {
 	return new Style({
-		text: new Text({ text: feature.get('name'), font: '14px sans-serif' }),
-		stroke: getStroke(feature, 3, 'gray'),
+		text: text(feature, 'rgb(39, 39, 39)'),
+		stroke: getStroke(feature, 2, 'rgb(39, 39, 39)'),
 		fill: new Fill({
 			color: 'transparent'
 		})
@@ -28,8 +42,8 @@ export const baseStyle = (feature: FeatureLike) => {
 
 export const selectStyle = (feature: FeatureLike) => {
 	return new Style({
-		text: new Text({ text: feature.get('name'), font: '14px sans-serif', overflow: true }),
-		stroke: getStroke(feature, 5, '#3489eb'),
+		text: text(feature, '#3489eb'),
+		stroke: getStroke(feature, 4, '#3489eb'),
 		zIndex: 1,
 		fill: new Fill({
 			color: 'transparent'
