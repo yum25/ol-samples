@@ -27,6 +27,7 @@
 	import { stylefunction } from 'ol-mapbox-style';
 
 	let map: CanvasMap;
+	let hide: boolean = false;
 	useGeographic();
 
 	const geojsonFormatter = new GeoJSON();
@@ -101,9 +102,12 @@
 
 <div id="map"></div>
 <div id="info">
-	<button class="button window"> ― </button>
-	<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-	<button class="button command"> Finish </button>
+	<button class="button window" on:click={() => hide = !hide}> ― </button>
+	<div class:collapsed={hide}>
+		<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
+		<button class="button command"> Finish </button>
+	</div>
+
 </div>
 
 <button class="button nav search">⌕</button>
@@ -134,6 +138,10 @@
 		background: white;
 
 		padding: 1rem;
+	}
+
+	.collapsed {
+		display: none;
 	}
 
 	.button {
