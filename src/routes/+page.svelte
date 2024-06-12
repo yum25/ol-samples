@@ -3,31 +3,32 @@
 	import View from 'ol/View.js';
 	import VectorSource from 'ol/source/Vector';
 	import VectorLayer from 'ol/layer/Vector';
+	import { VectorTile } from 'ol/layer';
 	import GeoJSON from 'ol/format/GeoJSON';
 
 	import { getCenter } from 'ol/extent';
 	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
 	import { useGeographic } from 'ol/proj';
-	import type { Feature } from 'ol';
 	import { Polygon, type Geometry } from 'ol/geom';
+	import type { Feature } from 'ol';
+	import { stylefunction } from 'ol-mapbox-style';
 
 	import { onMount } from 'svelte';
 
-	import { getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
+	import { baseSource, getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
+	import { complete } from '$lib/stores';
 
 	import counties from '$lib/references/counties.json';
 	import detroit from '$lib/references/detroit.json';
 	import coords from '$lib/references/coords.json';
-
-	import { VectorTile } from 'ol/layer';
-	import { baseSource } from '$lib//utils';
 	import styles from '$lib/styles.json';
 
-	import { stylefunction } from 'ol-mapbox-style';
-
 	let map: CanvasMap;
-	let hide: boolean = false;
+	let hide = false;
+	let hideSearch = true;
+	let search = '';
+
 	useGeographic();
 
 	const geojsonFormatter = new GeoJSON();
@@ -102,15 +103,21 @@
 
 <div id="map"></div>
 <div id="info">
-	<button class="button window" on:click={() => hide = !hide}> ― </button>
+	<button class="button window" on:click={() => (hide = !hide)}> ― </button>
 	<div class:collapsed={hide}>
 		<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-		<button class="button command"> Finish </button>
+		<button class="button command" on:click={() => $complete = true}> Finish </button>
 	</div>
-
 </div>
-
-<button class="button nav search">⌕</button>
+<div class="search">
+	<button class="button searchicon" on:click={() => (hideSearch = !hideSearch)}>⌕</button>
+	<input
+		class:textfield={!hideSearch}
+		class:textfieldhidden={hideSearch}
+		bind:value={search}
+		on:blur={() => (hideSearch = true)}
+	/>
+</div>
 
 <button
 	class="button nav left"
@@ -128,6 +135,15 @@
 </button>
 
 <style>
+	@keyframes extend {
+		from {
+			width: 0;
+		}
+		to {
+			width: 80%;
+		}
+	}
+
 	#info {
 		position: absolute;
 		top: 2%;
@@ -156,6 +172,10 @@
 		font-weight: bold;
 	}
 
+	.window:hover {
+		background: rgb(231, 231, 231);
+	}
+
 	.command {
 		background: rgb(2, 176, 2);
 		border-radius: 0.15rem;
@@ -167,12 +187,16 @@
 		text-transform: uppercase;
 	}
 
+	.command:hover {
+		background: rgb(0, 140, 0);
+	}
+
 	.nav {
 		position: absolute;
 		top: 50%;
 
-		height: 4rem;
-		width: 4rem;
+		height: 3.5rem;
+		width: 3.5rem;
 		border-radius: 50%;
 		font-size: 2.5rem;
 
@@ -186,8 +210,51 @@
 	}
 
 	.search {
+		display: flex;
+		justify-content: end;
+		gap: 0.5rem;
+		width: 25%;
+
+		position: absolute;
 		top: 2%;
 		right: 2%;
+	}
+
+	.searchicon {
+		height: 3.5rem;
+		width: 3.5rem;
+		border-radius: 50%;
+		font-size: 2.5rem;
+
+		background: white;
+		border: none;
+		opacity: 60%;
+	}
+
+	.searchicon:hover {
+		opacity: 100%;
+	}
+
+	.textfield {
+		font-size: 1rem;
+
+		opacity: 60%;
+		height: 3.5rem;
+		border-radius: 2rem;
+		padding-left: 1rem;
+
+		border: none;
+		animation: extend ease forwards 1s;
+	}
+
+	.textfield:focus {
+		opacity: 100%;
+	}
+
+	.textfieldhidden {
+		display: none;
+		width: 0;
+		animation: extend ease reverse 1s;
 	}
 
 	.left {
