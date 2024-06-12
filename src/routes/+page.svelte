@@ -9,13 +9,17 @@
 	import { getCenter } from 'ol/extent';
 	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
 	import { useGeographic } from 'ol/proj';
-	import { Polygon, type Geometry } from 'ol/geom';
-	import type { Feature } from 'ol';
+	import { Polygon } from 'ol/geom';
 	import { stylefunction } from 'ol-mapbox-style';
 
 	import { onMount } from 'svelte';
 
-	import { baseSource, getCountiesExtent, getDistanceFromDefault } from '$lib/utils';
+	import {
+		baseSource,
+		getCountiesExtent,
+		getDistanceFromDefault,
+		getFeatureCenter
+	} from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
 	import { complete } from '$lib/stores';
 
@@ -28,6 +32,7 @@
 	let hide = false;
 	let hideSearch = true;
 	let search = '';
+	let searchRef: HTMLInputElement;
 
 	useGeographic();
 
@@ -40,10 +45,12 @@
 		source: baseSource
 	});
 
+	const countySource = new VectorSource({
+		features: geojsonFormatter.readFeatures(counties)
+	});
+
 	const countyLayer = new VectorLayer({
-		source: new VectorSource({
-			features: geojsonFormatter.readFeatures(counties)
-		}),
+		source: countySource,
 		style: (feature) => baseStyle(feature)
 	});
 
@@ -88,50 +95,79 @@
 
 		stylefunction(baseLayer, styles, 'esri');
 
-		(countyLayer.getSource() as VectorSource<Feature<Geometry>>)
-			.getFeatures()
-			.forEach((feature) => {
-				feature.set('default', feature.clone());
-				if (Object.keys(coords).includes(feature.get('name'))) {
-					feature.setGeometry(new Polygon(coords[feature.get('name')]));
-				}
-			});
+		countySource.getFeatures().forEach((feature) => {
+			feature.set('default', feature.clone());
+			if (Object.keys(coords).includes(feature.get('name'))) {
+				feature.setGeometry(new Polygon(coords[feature.get('name')]));
+			}
+		});
 
 		map.addInteraction(snap);
 	});
 </script>
 
 <div id="map"></div>
-<div id="info">
-	<button class="button window" on:click={() => (hide = !hide)}> ― </button>
-	<div class:collapsed={hide}>
+<button class="button window" on:click={() => (hide = !hide)}> ― </button>
+<section id="info" class:collapsed={hide}>
+	<div>
 		<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-		<button class="button command" on:click={() => $complete = true}> Finish </button>
+		<button class="button command" on:click={() => ($complete = true)}> Finish </button>
 	</div>
-</div>
-<div class="search">
-	<button class="button searchicon" on:click={() => (hideSearch = !hideSearch)}>⌕</button>
-	<input
-		class:textfield={!hideSearch}
-		class:textfieldhidden={hideSearch}
-		bind:value={search}
-		on:blur={() => (hideSearch = true)}
-	/>
-</div>
+</section>
+<section id="find">
+	<button
+		class="button icon"
+		on:click={() => {
+			hideSearch = !hideSearch;
+			searchRef.focus();
+		}}
+	>
+		<div
+			style="-webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); -o-transform: rotate(45deg); transform: rotate(45deg);"
+		>
+			⚲
+		</div>
+	</button>
+	{#if !hideSearch}
+		{@const features = countySource
+			.getFeatures()
+			.filter((feature) => feature.get('name').startsWith(search))}
+		<div class:search={!hideSearch}>
+			<input
+				class:textfield={!hideSearch}
+				bind:this={searchRef}
+				bind:value={search}
+				on:blur={() => (hideSearch = true)}
+			/>
+			<div class="results">
+				{#each features as feature}
+					<button
+						on:click={() => {
+							select.getFeatures().push(feature);
+							view.animate({ center: getFeatureCenter(feature), duration: 500 });
+						}}
+					>
+						{feature.get('name')}
+					</button>
+				{/each}
+			</div>
+		</div>
+	{/if}
+</section>
 
 <button
 	class="button nav left"
 	on:click={() =>
 		view.animate({ center: [-83.58403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
 >
-	⟨
+	◀
 </button>
 <button
 	class="button nav right"
 	on:click={() =>
 		view.animate({ center: [-83.08403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
 >
-	⟩
+	▶
 </button>
 
 <style>
@@ -140,13 +176,13 @@
 			width: 0;
 		}
 		to {
-			width: 80%;
+			width: 100%;
 		}
 	}
 
 	#info {
 		position: absolute;
-		top: 2%;
+		top: 8%;
 		left: 2%;
 
 		max-width: 30rem;
@@ -162,18 +198,21 @@
 
 	.button {
 		background: white;
-		border: none;
+		border: 1px solid rgb(231, 231, 231);
+	}
+
+	.button:hover {
+		background: rgb(231, 231, 231);
 	}
 
 	.window {
-		height: 1.5rem;
+		position: absolute;
+		top: 2%;
+		left: 2%;
+		height: 2.1rem;
+		width: 2.1rem;
 
-		outline: 1px solid rgb(231, 231, 231);
 		font-weight: bold;
-	}
-
-	.window:hover {
-		background: rgb(231, 231, 231);
 	}
 
 	.command {
@@ -195,21 +234,17 @@
 		position: absolute;
 		top: 50%;
 
-		height: 3.5rem;
-		width: 3.5rem;
+		height: 2.25rem;
+		width: 2.25rem;
 		border-radius: 50%;
-		font-size: 2.5rem;
-
-		background: white;
-		border: none;
-		opacity: 60%;
+		font-size: 1rem;
 	}
 
 	.nav:hover {
 		opacity: 100%;
 	}
 
-	.search {
+	#find {
 		display: flex;
 		justify-content: end;
 		gap: 0.5rem;
@@ -220,41 +255,25 @@
 		right: 2%;
 	}
 
-	.searchicon {
-		height: 3.5rem;
-		width: 3.5rem;
-		border-radius: 50%;
-		font-size: 2.5rem;
+	.icon {
+		height: 2.25rem;
+		width: 2.2rem;
+		aspect-ratio: 1;
+		font-size: 1.6rem;
 
 		background: white;
-		border: none;
-		opacity: 60%;
 	}
 
-	.searchicon:hover {
-		opacity: 100%;
+	.search {
+		animation: extend ease forwards 1s;
 	}
 
 	.textfield {
 		font-size: 1rem;
+		height: 2rem;
 
-		opacity: 60%;
-		height: 3.5rem;
-		border-radius: 2rem;
-		padding-left: 1rem;
-
-		border: none;
-		animation: extend ease forwards 1s;
-	}
-
-	.textfield:focus {
-		opacity: 100%;
-	}
-
-	.textfieldhidden {
-		display: none;
-		width: 0;
-		animation: extend ease reverse 1s;
+		border: 1px solid rgb(231, 231, 231);
+		animation: extend ease forwards 0.5s;
 	}
 
 	.left {
