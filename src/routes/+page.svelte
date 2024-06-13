@@ -20,7 +20,6 @@
 		getCountiesExtent,
 		getDistanceFromDefault,
 		getFeatureCenter,
-
 		isDetroit
 
 	} from '$lib/utils';
@@ -87,6 +86,10 @@
 			feature.setGeometry(feature.get('default').clone().getGeometry());
 		}
 	});
+
+	complete.subscribe((_) => {
+		countyLayer.setStyle((feature) => baseStyle(feature))
+	})
 
 	onMount(() => {
 		map = new CanvasMap({

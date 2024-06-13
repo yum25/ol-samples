@@ -1,7 +1,11 @@
 import { Style, Fill, Stroke, Text } from 'ol/style';
 import type { FeatureLike } from 'ol/Feature';
 
-import { isDetroit } from './utils';
+import { coordinatesEqual, getFeatureCenter, isDetroit } from './utils';
+import { complete } from './stores';
+
+let finished = false;
+complete.subscribe((value) => (finished = value));
 
 const fill: Record<string, string> = {
 	Southfield: 'rgba(100, 143, 255, 0.3)',
@@ -37,7 +41,9 @@ const getStroke = (feature: FeatureLike, width: number, color: string) => {
 		color,
 		width,
 		lineDash:
-			isDetroit(feature)
+			isDetroit(feature) ||
+			(coordinatesEqual(getFeatureCenter(feature), getFeatureCenter(feature.get('default'))) &&
+				finished)
 				? undefined
 				: [10, 5]
 	});
