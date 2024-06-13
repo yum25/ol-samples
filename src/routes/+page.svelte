@@ -16,9 +16,13 @@
 
 	import {
 		baseSource,
+		getBordersAccuracy,
 		getCountiesExtent,
 		getDistanceFromDefault,
-		getFeatureCenter
+		getFeatureCenter,
+
+		isDetroit
+
 	} from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
 	import { complete } from '$lib/stores';
@@ -111,6 +115,9 @@
 <section id="info" class:collapsed={hide}>
 	<div>
 		<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
+		{#if $complete}
+		<p>{getBordersAccuracy(countySource.getFeatures().filter((feature) => !isDetroit(feature)))}</p>
+		{/if}
 		<button class="button command" on:click={() => ($complete = true)}> Finish </button>
 	</div>
 </section>
@@ -119,7 +126,11 @@
 		class="button icon"
 		on:click={() => {
 			hideSearch = !hideSearch;
-			searchRef.focus();
+			setTimeout(() => {
+				if (!hideSearch) {
+					searchRef.focus();
+				}
+			}, 1000);
 		}}
 	>
 		<div
@@ -131,7 +142,7 @@
 	{#if !hideSearch}
 		{@const features = countySource
 			.getFeatures()
-			.filter((feature) => feature.get('name').startsWith(search))}
+			.filter((feature) => feature.get('name').toLowerCase().includes(search.toLowerCase()))}
 		<div class:search={!hideSearch}>
 			<input
 				class:textfield={!hideSearch}
@@ -271,6 +282,7 @@
 	.textfield {
 		font-size: 1rem;
 		height: 2rem;
+		padding-left: 0.5rem;
 
 		border: 1px solid rgb(231, 231, 231);
 		animation: extend ease forwards 0.5s;
