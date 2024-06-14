@@ -15,8 +15,8 @@ export const baseSource = new VectorTile({
 
 export const getCountiesExtent = () => {
 	const border = new Polygon([
-		[[-83.6577264711691, 42.5449612971133]],
-		[[-82.910343680423, 42.2003749373053]]
+		[[-83.7077264711691, 42.5449612971133]],
+		[[-82.800343680423, 42.2003749373053]]
 	]);
 
 	border.scale(1.2);
@@ -40,8 +40,8 @@ export const getDistanceFromDefault = (feature: FeatureLike) => {
 };
 
 export const getBordersAccuracy = (features: FeatureLike[]) => {
-	return (
-		features.reduce((correct, feature) => +(getDistanceFromDefault(feature) === 0) + correct, 0) /
-		features.length
+	return Math.round(
+		(features.reduce((correct, feature) => +(getDistanceFromDefault(feature) === 0) + correct, 0) /
+		features.length) * 100
 	);
 };

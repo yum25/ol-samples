@@ -27,11 +27,11 @@
 	import { complete } from '$lib/stores';
 
 	import counties from '$lib/references/counties.json';
-	import detroit from '$lib/references/detroit.json';
 	import coords from '$lib/references/coords.json';
 	import styles from '$lib/styles.json';
 
 	let map: CanvasMap;
+	let state = 0;
 	let exportPng: HTMLButtonElement;
 	let downloadImg: HTMLAnchorElement;
 	let hide = false;
@@ -76,27 +76,28 @@
 		features: select.getFeatures()
 	});
 
-	const snap = new Snap({
-		source: new VectorSource({
-			features: geojsonFormatter.readFeatures(detroit)
-		})
-	});
-
 	translate.on('translateend', (e) => {
 		const feature = e.features.getArray()[0];
-		if (getDistanceFromDefault(feature) < 0.01) {
+		if (getDistanceFromDefault(feature) < 0.005) {
 			feature.setGeometry(feature.get('default').clone().getGeometry());
 		}
 	});
 
 	complete.subscribe((_) => {
 		countyLayer.setStyle((feature) => baseStyle(feature));
+
+		if ($complete) {
+			map.removeInteraction(translate);
+			map.removeInteraction(select);
+
+			view.animate({ center: [-83.08403507579606, 42.382668117209296], zoom: 11.3, duration: 500 });
+		}
 	});
 
 	onMount(() => {
 		map = new CanvasMap({
 			target: 'map',
-			interactions: defaultInteractions().extend([select, translate]),
+			interactions: defaultInteractions(),
 			layers: [baseLayer, countyLayer],
 			controls: [],
 			view
@@ -111,105 +112,126 @@
 			}
 		});
 
-		map.addInteraction(snap);
-
 		// From https://openlayers.org/en/latest/examples/export-map.html
 		exportPng.addEventListener('click', function () {
-		map.once('rendercomplete', function () {
-			const mapCanvas = document.createElement('canvas');
-			const size = <Size> map.getSize();
-			mapCanvas.width = size[0];
-			mapCanvas.height = size[1];
-			const mapContext = <CanvasRenderingContext2D> mapCanvas.getContext('2d');
-			Array.prototype.forEach.call(
-				map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
-				function (canvas) {
-					if (canvas.width > 0) {
-						const opacity = canvas.parentNode.style.opacity || canvas.style.opacity;
-						mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-						let matrix;
-						const transform = canvas.style.transform;
-						if (transform) {
-							// Get the transform parameters from the style's transform matrix
-							matrix = transform
-								.match(/^matrix\(([^\(]*)\)$/)[1]
-								.split(',')
-								.map(Number);
-						} else {
-							matrix = [
-								parseFloat(canvas.style.width) / canvas.width,
-								0,
-								0,
-								parseFloat(canvas.style.height) / canvas.height,
-								0,
-								0
-							];
+			map.once('rendercomplete', function () {
+				const mapCanvas = document.createElement('canvas');
+				const size = <Size>map.getSize();
+				mapCanvas.width = size[0];
+				mapCanvas.height = size[1];
+				const mapContext = <CanvasRenderingContext2D>mapCanvas.getContext('2d');
+				Array.prototype.forEach.call(
+					map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
+					function (canvas) {
+						if (canvas.width > 0) {
+							const opacity = canvas.parentNode.style.opacity || canvas.style.opacity;
+							mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+							let matrix;
+							const transform = canvas.style.transform;
+							if (transform) {
+								// Get the transform parameters from the style's transform matrix
+								matrix = transform
+									.match(/^matrix\(([^\(]*)\)$/)[1]
+									.split(',')
+									.map(Number);
+							} else {
+								matrix = [
+									parseFloat(canvas.style.width) / canvas.width,
+									0,
+									0,
+									parseFloat(canvas.style.height) / canvas.height,
+									0,
+									0
+								];
+							}
+							// Apply the transform to the export map context
+							CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+							const backgroundColor = canvas.parentNode.style.backgroundColor;
+							if (backgroundColor) {
+								mapContext.fillStyle = backgroundColor;
+								mapContext.fillRect(0, 0, canvas.width, canvas.height);
+							}
+							mapContext.drawImage(canvas, 0, 0);
 						}
-						// Apply the transform to the export map context
-						CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-						const backgroundColor = canvas.parentNode.style.backgroundColor;
-						if (backgroundColor) {
-							mapContext.fillStyle = backgroundColor;
-							mapContext.fillRect(0, 0, canvas.width, canvas.height);
-						}
-						mapContext.drawImage(canvas, 0, 0);
 					}
-				}
-			);
-			mapContext.globalAlpha = 1;
-			mapContext.setTransform(1, 0, 0, 1, 0, 0);
-			downloadImg.href = mapCanvas.toDataURL();
-			downloadImg.click();
+				);
+				mapContext.globalAlpha = 1;
+				mapContext.setTransform(1, 0, 0, 1, 0, 0);
+				downloadImg.href = mapCanvas.toDataURL();
+				downloadImg.click();
+			});
+			map.renderSync();
 		});
-		map.renderSync();
-	});
 	});
 </script>
 
 <div id="map"></div>
 <button class="button window" on:click={() => (hide = !hide)}> ― </button>
 <section id="info" class:collapsed={hide}>
-	<div>
-		<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-		{#if $complete}
+	{#if $complete}
+		<div>
 			<p>
-				{getBordersAccuracy(countySource.getFeatures().filter((feature) => !isDetroit(feature)))}
+				You got {getBordersAccuracy(
+					countySource.getFeatures().filter((feature) => !isDetroit(feature))
+				)}% of the bordering counties positioned correctly!
 			</p>
-		{/if}
-		<button class="button command" on:click={() => ($complete = true)}> Finish </button>
-		<button class="button command"  bind:this={exportPng} >Download PNG</button>
-		<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />	
-	</div>
+			<button class="button command" bind:this={exportPng}>Download PNG</button>
+			<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
+			<form>
+				<button class="button command">Submit Attempt</button>
+				<input
+					type="hidden"
+					name="features"
+					value={countySource.getFeatures().map((feature) => feature.getGeometry())}
+				/>
+			</form>
+		</div>
+	{:else if state === 0}
+		<div>
+			<h1><b>Regional Mapping Puzzle</b></h1>
+			<p>Introduction and info - place the counties so that they border Detroit correctly</p>
+			<button
+				class="button command"
+				on:click={() => {
+					state = state + 1;
+					map.addInteraction(select);
+					map.addInteraction(translate);
+				}}>Start</button
+			>
+		</div>
+	{:else if state === 1}
+		<div>
+			<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
+			<button class="button command" on:click={() => ($complete = true)}> Finish </button>
+		</div>
+	{/if}
 </section>
 <section id="find">
-	<button
-		class="button icon"
-		on:click={() => {
-			hideSearch = !hideSearch;
-			setTimeout(() => {
-				if (!hideSearch) {
-					searchRef.focus();
-				}
-			}, 1000);
-		}}
-	>
-		<div
-			style="-webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); -o-transform: rotate(45deg); transform: rotate(45deg);"
+	{#if state === 1}
+		<button
+			class="button icon"
+			on:click={() => {
+				hideSearch = !hideSearch;
+				setTimeout(() => {
+					if (!hideSearch) {
+						searchRef.focus();
+					}
+				}, 1000);
+			}}
 		>
-			⚲
-		</div>
-	</button>
+			<div
+				style="-webkit-transform: rotate(45deg); -moz-transform: rotate(45deg); -o-transform: rotate(45deg); transform: rotate(45deg);"
+			>
+				⚲
+			</div>
+		</button>
+	{/if}
 	{#if !hideSearch}
 		{@const features = countySource
 			.getFeatures()
 			.filter((feature) => feature.get('name').toLowerCase().includes(search.toLowerCase()))}
 		<div class:search={!hideSearch}>
-			<input
-				class:textfield={!hideSearch}
-				bind:this={searchRef}
-				bind:value={search}
-				on:blur={() => (hideSearch = true)}
-			/>
+			<input class:textfield={!hideSearch} bind:this={searchRef} bind:value={search} />
 			<div class="results">
 				{#each features as feature}
 					<button
@@ -253,7 +275,7 @@
 
 	#info {
 		position: absolute;
-		top: 8%;
+		top: 6.5%;
 		left: 2%;
 
 		max-width: 30rem;
@@ -265,6 +287,10 @@
 
 	.collapsed {
 		display: none;
+	}
+
+	h1 {
+		font-size: 1.2rem;
 	}
 
 	.button {

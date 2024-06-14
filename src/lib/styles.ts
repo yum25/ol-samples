@@ -49,6 +49,16 @@ const getStroke = (feature: FeatureLike, width: number, color: string) => {
 	});
 };
 
+const getFill = (feature: FeatureLike) => {
+	return new Fill({
+		color:isDetroit(feature) ||
+		(coordinatesEqual(getFeatureCenter(feature), getFeatureCenter(feature.get('default'))) &&
+			finished)
+			? fill[feature.get('name')]
+			: "rgba(200, 200, 200, 0.3)"
+	})
+};
+
 const text = (feature: FeatureLike, color: string) =>
 	new Text({
 		text: feature.get('name'),
@@ -67,9 +77,7 @@ export const baseStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, 'rgb(39, 39, 39)'),
 		stroke: getStroke(feature, 2, 'rgb(39, 39, 39)'),
-		fill: new Fill({
-			color: fill[feature.get('name')] ?? 'transparent'
-		})
+		fill: getFill(feature)
 	});
 };
 
@@ -78,8 +86,6 @@ export const selectStyle = (feature: FeatureLike) => {
 		text: text(feature, '#3489eb'),
 		stroke: getStroke(feature, 4, '#3489eb'),
 		zIndex: 1,
-		fill: new Fill({
-			color: fill[feature.get('name')] ?? 'transparent'
-		})
+		fill: getFill(feature)
 	});
 };
