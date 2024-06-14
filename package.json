@@ -31,6 +31,8 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@neondatabase/serverless": "^0.9.3",
+		"dotenv": "^16.4.5",
 		"ol": "^9.1.0",
 		"ol-mapbox-style": "^12.3.3"
 	}
