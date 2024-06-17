@@ -7,7 +7,7 @@
 	import GeoJSON from 'ol/format/GeoJSON';
 
 	import { getCenter } from 'ol/extent';
-	import { Select, Translate, Snap, defaults as defaultInteractions } from 'ol/interaction.js';
+	import { Select, Translate, defaults as defaultInteractions } from 'ol/interaction.js';
 	import { useGeographic } from 'ol/proj';
 	import { Polygon } from 'ol/geom';
 	import { stylefunction } from 'ol-mapbox-style';
@@ -91,6 +91,59 @@
 			map.removeInteraction(select);
 
 			view.animate({ center: [-83.08403507579606, 42.382668117209296], zoom: 11.3, duration: 500 });
+
+			setTimeout(() => {
+				// From https://openlayers.org/en/latest/examples/export-map.html
+				exportPng.addEventListener('click', function () {
+					map.once('rendercomplete', function () {
+						const mapCanvas = document.createElement('canvas');
+						const size = <Size>map.getSize();
+						mapCanvas.width = size[0];
+						mapCanvas.height = size[1];
+						const mapContext = <CanvasRenderingContext2D>mapCanvas.getContext('2d');
+						Array.prototype.forEach.call(
+							map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
+							function (canvas) {
+								if (canvas.width > 0) {
+									const opacity = canvas.parentNode.style.opacity || canvas.style.opacity;
+									mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
+									let matrix;
+									const transform = canvas.style.transform;
+									if (transform) {
+										// Get the transform parameters from the style's transform matrix
+										matrix = transform
+											.match(/^matrix\(([^\(]*)\)$/)[1]
+											.split(',')
+											.map(Number);
+									} else {
+										matrix = [
+											parseFloat(canvas.style.width) / canvas.width,
+											0,
+											0,
+											parseFloat(canvas.style.height) / canvas.height,
+											0,
+											0
+										];
+									}
+									// Apply the transform to the export map context
+									CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
+									const backgroundColor = canvas.parentNode.style.backgroundColor;
+									if (backgroundColor) {
+										mapContext.fillStyle = backgroundColor;
+										mapContext.fillRect(0, 0, canvas.width, canvas.height);
+									}
+									mapContext.drawImage(canvas, 0, 0);
+								}
+							}
+						);
+						mapContext.globalAlpha = 1;
+						mapContext.setTransform(1, 0, 0, 1, 0, 0);
+						downloadImg.href = mapCanvas.toDataURL();
+						downloadImg.click();
+					});
+					map.renderSync();
+				});
+			}, 100);
 		}
 	});
 
@@ -110,57 +163,6 @@
 			if (Object.keys(coords).includes(feature.get('name'))) {
 				feature.setGeometry(new Polygon(coords[feature.get('name')]));
 			}
-		});
-
-		// From https://openlayers.org/en/latest/examples/export-map.html
-		exportPng.addEventListener('click', function () {
-			map.once('rendercomplete', function () {
-				const mapCanvas = document.createElement('canvas');
-				const size = <Size>map.getSize();
-				mapCanvas.width = size[0];
-				mapCanvas.height = size[1];
-				const mapContext = <CanvasRenderingContext2D>mapCanvas.getContext('2d');
-				Array.prototype.forEach.call(
-					map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
-					function (canvas) {
-						if (canvas.width > 0) {
-							const opacity = canvas.parentNode.style.opacity || canvas.style.opacity;
-							mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-							let matrix;
-							const transform = canvas.style.transform;
-							if (transform) {
-								// Get the transform parameters from the style's transform matrix
-								matrix = transform
-									.match(/^matrix\(([^\(]*)\)$/)[1]
-									.split(',')
-									.map(Number);
-							} else {
-								matrix = [
-									parseFloat(canvas.style.width) / canvas.width,
-									0,
-									0,
-									parseFloat(canvas.style.height) / canvas.height,
-									0,
-									0
-								];
-							}
-							// Apply the transform to the export map context
-							CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-							const backgroundColor = canvas.parentNode.style.backgroundColor;
-							if (backgroundColor) {
-								mapContext.fillStyle = backgroundColor;
-								mapContext.fillRect(0, 0, canvas.width, canvas.height);
-							}
-							mapContext.drawImage(canvas, 0, 0);
-						}
-					}
-				);
-				mapContext.globalAlpha = 1;
-				mapContext.setTransform(1, 0, 0, 1, 0, 0);
-				downloadImg.href = mapCanvas.toDataURL();
-				downloadImg.click();
-			});
-			map.renderSync();
 		});
 	});
 </script>
