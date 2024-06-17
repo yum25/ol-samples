@@ -167,7 +167,7 @@
 	});
 </script>
 
-<div id="map"></div>
+<div id="map" class:unblur={state === 1}></div>
 <button class="button window" on:click={() => (hide = !hide)}> ― </button>
 <section id="info" class:collapsed={hide}>
 	{#if $complete}
@@ -273,6 +273,23 @@
 		to {
 			width: 100%;
 		}
+	}
+
+	@keyframes clear {
+		from {
+			filter: blur(6px);
+		}
+		to {
+			filter: blur(0px);
+		}
+	}
+
+	#map {
+		filter: blur(6px);
+	}
+
+	.unblur {
+		animation: clear ease forwards 0.5s;
 	}
 
 	#info {
