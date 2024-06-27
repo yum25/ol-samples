@@ -171,20 +171,47 @@
 <button class="button window" on:click={() => (hide = !hide)}> ― </button>
 <section id="info" class:collapsed={hide}>
 	{#if $complete}
+		{@const accuracy = getBordersAccuracy(
+			countySource.getFeatures().filter((feature) => !isDetroit(feature))
+		)}
 		<div>
+			<div style="display: flex;">
+				<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
+					<b>{accuracy}%</b>
+				</div>
+				<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
+			</div>
 			<p>
 				You got {getBordersAccuracy(
 					countySource.getFeatures().filter((feature) => !isDetroit(feature))
 				)}% of the bordering counties positioned correctly!
 			</p>
+
 			<button class="button command" bind:this={exportPng}>Download PNG</button>
 			<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
-			<form>
+			<form style="display: flex; flex-direction: column;" method="POST">
+				<label for="city">Which city do you live in?</label>
+				<input name="city" />
+
+				<label for="years">How long have you lived there?</label>
+				<input name="years" />
+
+				<label for="collab">Do you believe in working with neighboring cities?</label>
+				<label for="yes">Yes</label>
+				<input type="radio" name="collab" id="yes" value={true} />
+				<label for="no">No</label>
+				<input type="radio" name="collab" id="no" value={false} />
+
 				<button class="button command">Submit Attempt</button>
 				<input
 					type="hidden"
 					name="features"
-					value={countySource.getFeatures().map((feature) => feature.getGeometry())}
+					value={JSON.stringify(countySource
+						.getFeatures()
+						.reduce(
+							(dict, feature) => ({ ...dict, [feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry }),
+							{}
+						))}
 				/>
 			</form>
 		</div>
