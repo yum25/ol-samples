@@ -193,28 +193,40 @@
 				<label for="city_live">Which city do you live in?</label>
 				<input name="city_live" />
 				<label for="city_work">Which city do you work in?</label>
-				<input name="city_work"/>
+				<input name="city_work" />
 				<label for="city_visit">What city do you most enjoy visiting?</label>
-				<input name="city_visit"/>
+				<input name="city_visit" />
 				<label for="city_avoid">What city do you avoid visiting?</label>
-				<input name="city_avoid"/>
+				<input name="city_avoid" />
 				<button class="button command">Submit Attempt</button>
 				<input
 					type="hidden"
 					name="features"
-					value={JSON.stringify(countySource
-						.getFeatures()
-						.reduce(
-							(dict, feature) => ({ ...dict, [feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry }),
+					value={JSON.stringify(
+						countySource.getFeatures().reduce(
+							(dict, feature) => ({
+								...dict,
+								[feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry
+							}),
 							{}
-						))}
+						)
+					)}
 				/>
 			</form>
 		</div>
 	{:else if state === 0}
 		<div>
 			<h1><b>Regional Mapping Puzzle</b></h1>
-			<p>Introduction and info - place the counties so that they border Detroit correctly</p>
+			<p>
+				Detroit is bordered by 20 municipalities, can you correctly place all of them? Michigan’s
+				“Home Rule City” Act halted many smaller municipalities from being absorbed by the City of
+				Detroit when it passed in 1909.
+			</p>
+			<p>
+				Besides being a city, Detroit is also a broad concept in our
+				metropolitan region. Residents of many adjacent cities affiliate with Detroit in order to be
+				recognizable.
+			</p>
 			<button
 				class="button command"
 				on:click={() => {
