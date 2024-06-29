@@ -190,18 +190,14 @@
 			<button class="button command" bind:this={exportPng}>Download PNG</button>
 			<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
 			<form style="display: flex; flex-direction: column;" method="POST">
-				<label for="city">Which city do you live in?</label>
-				<input name="city" />
-
-				<label for="years">How long have you lived there?</label>
-				<input name="years" />
-
-				<label for="collab">Do you believe in working with neighboring cities?</label>
-				<label for="yes">Yes</label>
-				<input type="radio" name="collab" id="yes" value={true} />
-				<label for="no">No</label>
-				<input type="radio" name="collab" id="no" value={false} />
-
+				<label for="city_live">Which city do you live in?</label>
+				<input name="city_live" />
+				<label for="city_work">Which city do you work in?</label>
+				<input name="city_work"/>
+				<label for="city_visit">What city do you most enjoy visiting?</label>
+				<input name="city_visit"/>
+				<label for="city_avoid">What city do you avoid visiting?</label>
+				<input name="city_avoid"/>
 				<button class="button command">Submit Attempt</button>
 				<input
 					type="hidden"
