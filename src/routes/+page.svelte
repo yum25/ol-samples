@@ -218,7 +218,7 @@
 						countySource.getFeatures().reduce(
 							(dict, feature) => ({
 								...dict,
-								[feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry
+								[feature.get('name')]: feature.getGeometry().getCoordinates()
 							}),
 							{}
 						)

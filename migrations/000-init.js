@@ -1,7 +1,8 @@
-import { sql } from './db';
+import { sql } from './db.js';
 
 const main = async () => {
-	await sql(`CREATE TABLE IF NOT EXISTS reg(
+	await sql('CREATE EXTENSION IF NOT EXISTS postgis');
+	await sql(`CREATE TABLE IF NOT EXISTS submissions (
         rid SERIAL PRIMARY KEY,
         placements jsonb NOT NULL,
         city_live text NOT NULL,

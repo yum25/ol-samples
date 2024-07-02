@@ -1,3 +1,4 @@
+import { sql } from '$lib/db.js';
 import { fail } from '@sveltejs/kit';
 
 export const actions = {
@@ -14,7 +15,10 @@ export const actions = {
 			return fail(400);
 		}
 
-		console.log(city_live, city_work, city_visit, city_avoid);
-		// console.log(placements)
+		const insertion = await sql(`INSERT INTO submissions (
+			placements, city_live, city_work, city_visit, city_avoid
+			) VALUES ('${placements}', '${city_live}', '${city_work}', '${city_visit}', '${city_avoid}')`);
+
+		console.log(insertion);
 	}
 };
