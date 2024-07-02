@@ -39,9 +39,13 @@ export const getDistanceFromDefault = (feature: FeatureLike) => {
 	return Math.hypot(Math.abs(newCenter[0] - oldCenter[0]), Math.abs(newCenter[1] - oldCenter[1]));
 };
 
-export const getBordersAccuracy = (features: FeatureLike[]) => {
-	return Math.round(
-		(features.reduce((correct, feature) => +(getDistanceFromDefault(feature) === 0) + correct, 0) /
-		features.length) * 100
+export const getNumberCorrect = (features: FeatureLike[]) => {
+	return features.reduce(
+		(correct, feature) => +(getDistanceFromDefault(feature) === 0) + correct,
+		0
 	);
+};
+
+export const getBordersAccuracy = (features: FeatureLike[]) => {
+	return Math.round((getNumberCorrect(features) / features.length) * 100);
 };
