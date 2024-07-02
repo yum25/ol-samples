@@ -5,17 +5,16 @@ export const actions = {
 		const data = await request.formData();
 
 		const placements = data.get('features');
-		const city = data.get('city');
-		const years = data.get('years');
-		const collab = data.get('collab');
+		const city_live = data.get('city_live');
+		const city_work = data.get('city_work');
+		const city_visit = data.get('city_visit');
+		const city_avoid = data.get('city_avoid');
 
-		// if (!placements || !city || !years || !collab) {
-		// 	return fail(400);
-		// }
+		if (!placements || !city_live || !city_work || !city_avoid) {
+			return fail(400);
+		}
 
-		console.log(city, years, collab)
-		console.log(placements)
-
-		
+		console.log(city_live, city_work, city_visit, city_avoid);
+		// console.log(placements)
 	}
 };

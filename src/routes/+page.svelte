@@ -25,6 +25,7 @@
 	} from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
 	import { complete } from '$lib/stores';
+	import CitySelect from '$lib/components/cityselect.svelte';
 
 	import counties from '$lib/references/counties.json';
 	import coords from '$lib/references/coords.json';
@@ -87,9 +88,6 @@
 		countyLayer.setStyle((feature) => baseStyle(feature));
 
 		if ($complete) {
-			map.removeInteraction(translate);
-			map.removeInteraction(select);
-
 			view.animate({ center: [-83.08403507579606, 42.382668117209296], zoom: 11.3, duration: 500 });
 
 			setTimeout(() => {
@@ -167,7 +165,7 @@
 	});
 </script>
 
-<div id="map" class:unblur={state === 1}></div>
+<div id="map" class:unblur={state > 0}></div>
 <button class="button window" on:click={() => (hide = !hide)}> ― </button>
 <section id="info" class:collapsed={hide}>
 	{#if $complete}
@@ -191,13 +189,13 @@
 			<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
 			<form style="display: flex; flex-direction: column;" method="POST">
 				<label for="city_live">Which city do you live in?</label>
-				<input name="city_live" />
+				<CitySelect name="city_live" />
 				<label for="city_work">Which city do you work in?</label>
-				<input name="city_work" />
+				<CitySelect name="city_work" />
 				<label for="city_visit">What city do you most enjoy visiting?</label>
-				<input name="city_visit" />
+				<CitySelect name="city_visit" />
 				<label for="city_avoid">What city do you avoid visiting?</label>
-				<input name="city_avoid" />
+				<CitySelect name="city_avoid" />
 				<button class="button command">Submit Attempt</button>
 				<input
 					type="hidden"
@@ -223,9 +221,8 @@
 				Detroit when it passed in 1909.
 			</p>
 			<p>
-				Besides being a city, Detroit is also a broad concept in our
-				metropolitan region. Residents of many adjacent cities affiliate with Detroit in order to be
-				recognizable.
+				Besides being a city, Detroit is also a broad concept in our metropolitan region. Residents
+				of many adjacent cities affiliate with Detroit in order to be recognizable.
 			</p>
 			<button
 				class="button command"
@@ -239,7 +236,17 @@
 	{:else if state === 1}
 		<div>
 			<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-			<button class="button command" on:click={() => ($complete = true)}> Finish </button>
+			<button
+				class="button command"
+				on:click={() => {
+					$complete = true;
+					state = state + 1;
+					map.removeInteraction(translate);
+					map.removeInteraction(select);
+				}}
+			>
+				Finish
+			</button>
 		</div>
 	{/if}
 </section>
@@ -284,21 +291,22 @@
 		</div>
 	{/if}
 </section>
-
-<button
-	class="button nav left"
-	on:click={() =>
-		view.animate({ center: [-83.58403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
->
-	◀
-</button>
-<button
-	class="button nav right"
-	on:click={() =>
-		view.animate({ center: [-83.08403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
->
-	▶
-</button>
+{#if state === 1}
+	<button
+		class="button nav left"
+		on:click={() =>
+			view.animate({ center: [-83.58403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
+	>
+		◀
+	</button>
+	<button
+		class="button nav right"
+		on:click={() =>
+			view.animate({ center: [-83.08403507579606, 42.362668117209296], zoom: 11.7, duration: 500 })}
+	>
+		▶
+	</button>
+{/if}
 
 <style>
 	@keyframes extend {
