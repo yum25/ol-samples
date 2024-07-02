@@ -30,15 +30,23 @@
 	import counties from '$lib/references/counties.json';
 	import coords from '$lib/references/coords.json';
 	import styles from '$lib/styles.json';
+	import cities from '$lib/references/cities.json';
 
 	let map: CanvasMap;
-	let state = 0;
+
 	let exportPng: HTMLButtonElement;
 	let downloadImg: HTMLAnchorElement;
+	let searchRef: HTMLInputElement;
+
+	let state = 0;
 	let hide = false;
 	let hideSearch = true;
 	let search = '';
-	let searchRef: HTMLInputElement;
+
+	let city_live = '';
+	let city_work = '';
+	let city_visit = '';
+	let city_avoid = '';
 
 	useGeographic();
 
@@ -189,14 +197,20 @@
 			<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
 			<form style="display: flex; flex-direction: column;" method="POST">
 				<label for="city_live">Which city do you live in?</label>
-				<CitySelect name="city_live" />
+				<CitySelect name="city_live" bind:value={city_live} />
 				<label for="city_work">Which city do you work in?</label>
-				<CitySelect name="city_work" />
+				<CitySelect name="city_work" bind:value={city_work} />
 				<label for="city_visit">What city do you most enjoy visiting?</label>
-				<CitySelect name="city_visit" />
+				<CitySelect name="city_visit" bind:value={city_visit} />
 				<label for="city_avoid">What city do you avoid visiting?</label>
-				<CitySelect name="city_avoid" />
-				<button class="button command">Submit Attempt</button>
+				<CitySelect name="city_avoid" bind:value={city_avoid} />
+				<button
+					disabled={!cities.includes(city_live) ||
+						!cities.includes(city_work) ||
+						!cities.includes(city_visit) ||
+						!cities.includes(city_avoid)}
+					class="button command">Submit Attempt</button
+				>
 				<input
 					type="hidden"
 					name="features"

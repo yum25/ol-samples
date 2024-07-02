@@ -1,7 +1,7 @@
 <script lang="ts">
 	import cities from '../references/cities.json';
 	export let name: string;
-	let value: string = '';
+	export let value: string;
 	let focused = false;
 </script>
 
