@@ -27,7 +27,7 @@
 	import { complete } from '$lib/stores';
 	import CitySelect from '$lib/components/cityselect.svelte';
 
-	import counties from '$lib/references/counties.json';
+	import boundaries from '$lib/references/boundaries.json';
 	import coords from '$lib/references/coords.json';
 	import styles from '$lib/styles.json';
 	import cities from '$lib/references/cities.json';
@@ -59,12 +59,12 @@
 		source: baseSource
 	});
 
-	const countySource = new VectorSource({
-		features: geojsonFormatter.readFeatures(counties)
+	const boundarySource = new VectorSource({
+		features: geojsonFormatter.readFeatures(boundaries)
 	});
 
-	const countyLayer = new VectorLayer({
-		source: countySource,
+	const boundaryLayer = new VectorLayer({
+		source: boundarySource,
 		style: (feature) => baseStyle(feature)
 	});
 
@@ -93,7 +93,7 @@
 	});
 
 	complete.subscribe((_) => {
-		countyLayer.setStyle((feature) => baseStyle(feature));
+		boundaryLayer.setStyle((feature) => baseStyle(feature));
 
 		if ($complete) {
 			view.animate({ center: [-83.08403507579606, 42.382668117209296], zoom: 11.3, duration: 500 });
@@ -157,14 +157,14 @@
 		map = new CanvasMap({
 			target: 'map',
 			interactions: defaultInteractions(),
-			layers: [baseLayer, countyLayer],
+			layers: [baseLayer, boundaryLayer],
 			controls: [],
 			view
 		});
 
 		stylefunction(baseLayer, styles, 'esri');
 
-		countySource.getFeatures().forEach((feature) => {
+		boundarySource.getFeatures().forEach((feature) => {
 			feature.set('default', feature.clone());
 			if (Object.keys(coords).includes(feature.get('name'))) {
 				feature.setGeometry(new Polygon(coords[feature.get('name')]));
@@ -178,7 +178,7 @@
 <section id="info" class:collapsed={hide}>
 	{#if $complete}
 		{@const accuracy = getBordersAccuracy(
-			countySource.getFeatures().filter((feature) => !isDetroit(feature))
+			boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
 		)}
 		<div>
 			<div style="display: flex;">
@@ -189,7 +189,7 @@
 			</div>
 			<p>
 				You got {getBordersAccuracy(
-					countySource.getFeatures().filter((feature) => !isDetroit(feature))
+					boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
 				)}% of the bordering counties positioned correctly!
 			</p>
 
@@ -215,7 +215,7 @@
 					type="hidden"
 					name="features"
 					value={JSON.stringify(
-						countySource.getFeatures().reduce(
+						boundarySource.getFeatures().reduce(
 							(dict, feature) => ({
 								...dict,
 								[feature.get('name')]: feature.getGeometry().getCoordinates()
@@ -285,7 +285,7 @@
 		</button>
 	{/if}
 	{#if !hideSearch}
-		{@const features = countySource
+		{@const features = boundarySource
 			.getFeatures()
 			.filter((feature) => feature.get('name').toLowerCase().includes(search.toLowerCase()))}
 		<div class:search={!hideSearch}>
