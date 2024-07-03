@@ -3,7 +3,7 @@ import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const submissions = await sql(
-		`SELECT placements, city_live, city_work, city_visit, city_avoid FROM submissions`
+		`SELECT rid, placements, city_live, city_work, city_visit, city_avoid, created_at FROM submissions`
 	);
 
 	return { submissions };
