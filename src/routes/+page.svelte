@@ -343,6 +343,7 @@
 
 	#map {
 		filter: blur(6px);
+		height: 100vh;
 	}
 
 	.unblur {
@@ -456,8 +457,5 @@
 
 	.right {
 		right: 1%;
-	}
-	#map {
-		height: 100vh;
 	}
 </style>
