@@ -17,13 +17,11 @@
 	import { baseStyle } from '$lib/styles';
 
 	import boundaries from '$lib/references/boundaries.json';
-	import coords from '$lib/references/coords.json';
 	import styles from '$lib/styles.json';
 
 	export let id: string;
 	export let placements;
-	console.log(placements);
-	console.log(coords);
+
 	let map: CanvasMap;
 
 	useGeographic();
