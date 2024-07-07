@@ -66,9 +66,9 @@
 			feature.set('default', feature.clone());
 			if (
 				Object.keys(placements).includes(feature.get('name')) &&
-				feature.get('name') !== 'Detroit'
+				feature.get('name') !== 'Detroit' &&
+				feature.get('name') !== 'Ecorse'
 			) {
-				console.log(feature.get('name'));
 				feature.setGeometry(new Polygon(placements[feature.get('name')]));
 			}
 		});
@@ -79,7 +79,7 @@
 
 <style>
 	.map-container {
-		width: 30rem;
+		width: 100%;
 		height: 30rem;
 	}
 </style>
