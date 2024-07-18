@@ -175,7 +175,7 @@
 
 <div id="map" class:unblur={state > 0}></div>
 <button class="button window" on:click={() => (hide = !hide)}> ― </button>
-<section id="info" class:collapsed={hide}>
+<section class="info" class:centered={state === 2} class:collapsed={hide}>
 	{#if $complete}
 		{@const accuracy = getBordersAccuracy(
 			boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
@@ -350,7 +350,7 @@
 		animation: clear ease forwards 0.5s;
 	}
 
-	#info {
+	.info {
 		position: absolute;
 		top: 6.5%;
 		left: 2%;
