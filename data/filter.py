@@ -34,11 +34,17 @@ def is_detroit(county):
     return county["properties"]["name"] in counties
 
 data = json.load(open('./data/community_boundaries.json'))
+essex = json.load(open('./data/essex_boundaries.json'))
 # Filter the SEMCOG file, only adding neighboring boundaries of Detroit
 counties = copy.deepcopy(data)
 counties["features"] = list(filter(borders_detroit, counties["features"]))
 
-with open("./src/lib/references/counties.json", "w+") as f:
+# Add geojson data for Windsor
+windsor = next(filter(lambda x: x["properties"]["NAME"] == "Windsor", essex["features"]), None)
+windsor["properties"]["name"] = windsor["properties"].pop("NAME")
+counties["features"].append(windsor)
+
+with open("./src/lib/references/boundaries.json", "w+") as f:
     json.dump(counties, f)
 
 # detroit = copy.deepcopy(counties)
@@ -48,7 +54,7 @@ with open("./src/lib/references/counties.json", "w+") as f:
 #     json.dump(detroit, f)
 
 # Get the names of all cities in the SEMCOG file
-cities = []
+cities = ["Windsor"]
 for county in data["features"]:
     cities.append(county["properties"]["name"])
 
