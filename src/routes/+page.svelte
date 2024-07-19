@@ -26,6 +26,7 @@
 	import { baseStyle, selectStyle } from '$lib/styles';
 	import { complete } from '$lib/stores';
 	import CitySelect from '$lib/components/cityselect.svelte';
+	import Button from '$lib/components/button.svelte';
 
 	import boundaries from '$lib/references/boundaries.json';
 	import coords from '$lib/references/coords.json';
@@ -191,7 +192,7 @@
 				boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
 			)}% of the bordering counties positioned correctly!
 		</p>
-		<button class="button command" bind:this={exportPng}>Download PNG</button>
+		<Button bind:ref={exportPng}>Download PNG</Button>
 		<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
 	</section>
 {/if}
@@ -211,13 +212,14 @@
 					bind:value={city_avoid}
 					label="4) What city do you avoid visiting?"
 				/>
-				<button
+				<Button
 					disabled={!cities.includes(city_live) ||
 						!cities.includes(city_work) ||
 						!cities.includes(city_visit) ||
 						!cities.includes(city_avoid)}
-					class="button command">Submit Attempt</button
 				>
+					Submit Attempt
+				</Button>
 				<input
 					type="hidden"
 					name="features"
@@ -257,8 +259,7 @@
 	{:else if state === 1}
 		<div>
 			<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
-			<button
-				class="button command"
+			<Button
 				on:click={() => {
 					$complete = true;
 					onComplete();
@@ -268,7 +269,7 @@
 				}}
 			>
 				Finish
-			</button>
+			</Button>
 		</div>
 	{/if}
 </section>
