@@ -33,7 +33,8 @@ const fill: Record<string, string> = {
 	'Highland Park': 'rgba(255, 176, 0, 0.3)',
 
 	Hamtramck: 'rgba(100, 143, 255, 0.3)',
-	Detroit: 'rgba(168, 208, 178, 0.3)'
+	Detroit: 'rgba(168, 208, 178, 0.3)',
+	Windsor: 'rgba(120, 94, 240, 0.3)'
 };
 
 const getStroke = (feature: FeatureLike, width: number, color: string) => {
@@ -51,12 +52,13 @@ const getStroke = (feature: FeatureLike, width: number, color: string) => {
 
 const getFill = (feature: FeatureLike) => {
 	return new Fill({
-		color:isDetroit(feature) ||
-		(coordinatesEqual(getFeatureCenter(feature), getFeatureCenter(feature.get('default'))) &&
-			finished)
-			? fill[feature.get('name')]
-			: "rgba(200, 200, 200, 0.3)"
-	})
+		color:
+			isDetroit(feature) ||
+			(coordinatesEqual(getFeatureCenter(feature), getFeatureCenter(feature.get('default'))) &&
+				finished)
+				? fill[feature.get('name')]
+				: 'rgba(200, 200, 200, 0.3)'
+	});
 };
 
 const text = (feature: FeatureLike, color: string) =>
