@@ -11,9 +11,8 @@
 	import { useGeographic } from 'ol/proj';
 	import { Polygon } from 'ol/geom';
 	import { stylefunction } from 'ol-mapbox-style';
-	import type { Size } from 'ol/size';
 
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 
 	import {
 		baseSource,
@@ -109,6 +108,12 @@
 			}
 		});
 	});
+
+	onDestroy(() => {
+		select.dispose();
+		translate.dispose();
+		map?.dispose();
+	});
 </script>
 
 <div id="map" class:unblur={state > 0}></div>
@@ -194,14 +199,15 @@
 				Besides being a city, Detroit is also a broad concept in our metropolitan region. Residents
 				of many adjacent cities affiliate with Detroit in order to be recognizable.
 			</p>
-			<button
-				class="button command"
+			<Button
 				on:click={() => {
 					state = state + 1;
 					map.addInteraction(select);
 					map.addInteraction(translate);
-				}}>Start</button
+				}}
 			>
+				Start
+			</Button>
 		</div>
 	{:else if state === 1}
 		<div>
