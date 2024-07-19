@@ -199,22 +199,18 @@
 	{#if $complete}
 		<div>
 			<form style="display: flex; flex-direction: column; gap: 1rem;" method="POST">
-				<span>
-					<label for="city_live"><b>1) Which city do you live in?</b></label>
-					<CitySelect name="city_live" bind:value={city_live} />
-				</span>
-				<span>
-					<label for="city_work"><b>2) Which city do you work in?</b></label>
-					<CitySelect name="city_work" bind:value={city_work} />
-				</span>
-				<span>
-					<label for="city_visit"><b>3) What city do you most enjoy visiting?</b></label>
-					<CitySelect name="city_visit" bind:value={city_visit} />
-				</span>
-				<span>
-					<label for="city_avoid"><b>4) What city do you avoid visiting?</b></label>
-					<CitySelect name="city_avoid" bind:value={city_avoid} />
-				</span>
+				<CitySelect name="city_live" bind:value={city_live} label="1) Which city do you live in?" />
+				<CitySelect name="city_work" bind:value={city_work} label="2) Which city do you work in?" />
+				<CitySelect
+					name="city_visit"
+					bind:value={city_visit}
+					label="3) What city do you most enjoy visiting?"
+				/>
+				<CitySelect
+					name="city_avoid"
+					bind:value={city_avoid}
+					label="4) What city do you avoid visiting?"
+				/>
 				<button
 					disabled={!cities.includes(city_live) ||
 						!cities.includes(city_work) ||
@@ -384,11 +380,6 @@
 		background: white;
 
 		padding: 1rem;
-	}
-
-	form > span {
-		display: grid;
-		gap: 0.5rem;
 	}
 
 	.collapsed {

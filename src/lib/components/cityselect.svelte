@@ -2,26 +2,34 @@
 	import cities from '../references/cities.json';
 	export let name: string;
 	export let value: string;
+	export let label: string;
 	let focused = false;
 </script>
 
-<input
-	bind:value
-	{name}
-	on:focus={() => (focused = true)}
-	on:blur={() => setTimeout(() => (focused = false), 100)}
-/>
-{#if value.length > 0 && focused}
-	<div class="dropdown">
-		{#each cities as city}
-			{#if city.toLowerCase().includes(value.toLowerCase()) && focused}
-				<button type="button" on:click={() => (value = city)}>{city}</button>
-			{/if}
-		{/each}
-	</div>
-{/if}
+<span>
+	<label for={name}><b>{label}</b></label>
+	<input
+		bind:value
+		{name}
+		on:focus={() => (focused = true)}
+		on:blur={() => setTimeout(() => (focused = false), 100)}
+	/>
+	{#if value.length > 0 && focused}
+		<div class="dropdown">
+			{#each cities as city}
+				{#if city.toLowerCase().includes(value.toLowerCase()) && focused}
+					<button type="button" on:click={() => (value = city)}>{city}</button>
+				{/if}
+			{/each}
+		</div>
+	{/if}
+</span>
 
 <style>
+	span {
+		display: grid;
+		gap: 0.5rem;
+	}
 	input,
 	input:focus {
 		outline: 1px solid lightgray;
