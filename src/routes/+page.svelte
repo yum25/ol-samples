@@ -35,8 +35,6 @@
 
 	let map: CanvasMap;
 
-	let exportPng: HTMLButtonElement;
-	let downloadImg: HTMLAnchorElement;
 	let searchRef: HTMLInputElement;
 
 	let state = 0;
@@ -93,67 +91,6 @@
 		}
 	});
 
-	function onComplete() {
-		boundaryLayer.setStyle((feature) => baseStyle(feature));
-
-		if ($complete) {
-			view.animate({ center: [-83.08403507579606, 42.382668117209296], zoom: 11.3, duration: 500 });
-
-			setTimeout(() => {
-				// From https://openlayers.org/en/latest/examples/export-map.html
-				exportPng.addEventListener('click', function () {
-					map.once('rendercomplete', function () {
-						const mapCanvas = document.createElement('canvas');
-						const size = <Size>map.getSize();
-						mapCanvas.width = size[0];
-						mapCanvas.height = size[1];
-						const mapContext = <CanvasRenderingContext2D>mapCanvas.getContext('2d');
-						Array.prototype.forEach.call(
-							map.getViewport().querySelectorAll('.ol-layer canvas, canvas.ol-layer'),
-							function (canvas) {
-								if (canvas.width > 0) {
-									const opacity = canvas.parentNode.style.opacity || canvas.style.opacity;
-									mapContext.globalAlpha = opacity === '' ? 1 : Number(opacity);
-									let matrix;
-									const transform = canvas.style.transform;
-									if (transform) {
-										// Get the transform parameters from the style's transform matrix
-										matrix = transform
-											.match(/^matrix\(([^\(]*)\)$/)[1]
-											.split(',')
-											.map(Number);
-									} else {
-										matrix = [
-											parseFloat(canvas.style.width) / canvas.width,
-											0,
-											0,
-											parseFloat(canvas.style.height) / canvas.height,
-											0,
-											0
-										];
-									}
-									// Apply the transform to the export map context
-									CanvasRenderingContext2D.prototype.setTransform.apply(mapContext, matrix);
-									const backgroundColor = canvas.parentNode.style.backgroundColor;
-									if (backgroundColor) {
-										mapContext.fillStyle = backgroundColor;
-										mapContext.fillRect(0, 0, canvas.width, canvas.height);
-									}
-									mapContext.drawImage(canvas, 0, 0);
-								}
-							}
-						);
-						mapContext.globalAlpha = 1;
-						mapContext.setTransform(1, 0, 0, 1, 0, 0);
-						downloadImg.href = mapCanvas.toDataURL();
-						downloadImg.click();
-					});
-					map.renderSync();
-				});
-			}, 100);
-		}
-	}
-
 	onMount(() => {
 		map = new CanvasMap({
 			target: 'map',
@@ -191,8 +128,19 @@
 				boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
 			)}% of the bordering counties positioned correctly!
 		</p>
-		<Button bind:ref={exportPng}>Download PNG</Button>
-		<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
+		<Button
+			on:click={() => {
+				const url = map.getTargetElement()?.querySelector('canvas')?.toDataURL('image/png');
+
+				if (!!url) {
+					const a = document.createElement('a');
+					a.download = 'map.png';
+					a.href = url;
+					a.click();
+					a.remove();
+				}
+			}}>Download PNG</Button
+		>
 	</section>
 {/if}
 <section class="info" class:centered={state === 0} class:collapsed={hide}>
@@ -261,7 +209,13 @@
 			<Button
 				on:click={() => {
 					$complete = true;
-					onComplete();
+					boundaryLayer.setStyle((feature) => baseStyle(feature));
+					view.animate({
+						center: [-83.08403507579606, 42.382668117209296],
+						zoom: 11.3,
+						duration: 500
+					});
+
 					state = state + 1;
 					map.removeInteraction(translate);
 					map.removeInteraction(select);
