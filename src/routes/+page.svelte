@@ -175,7 +175,6 @@
 </script>
 
 <div id="map" class:unblur={state > 0}></div>
-<button class="button window" on:click={() => (hide = !hide)}> ― </button>
 {#if $complete}
 	{@const accuracy = getBordersAccuracy(
 		boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
@@ -196,7 +195,7 @@
 		<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
 	</section>
 {/if}
-<section id="info" class:collapsed={hide}>
+<section class="info" class:centered={state === 0} class:collapsed={hide}>
 	{#if $complete}
 		<div>
 			<form style="display: flex; flex-direction: column; gap: 1rem;" method="POST">
@@ -236,7 +235,7 @@
 			</form>
 		</div>
 	{:else if state === 0}
-		<div>
+		<div style="text-align: center; padding: 1rem;">
 			<h1><b>Regional Mapping Puzzle</b></h1>
 			<p>
 				Detroit is bordered by 20 municipalities, can you correctly place all of them? Michigan’s
@@ -273,8 +272,11 @@
 		</div>
 	{/if}
 </section>
-<section id="find">
-	{#if state === 1}
+{#if state > 0}
+	<button class="button window" on:click={() => (hide = !hide)}> ― </button>
+{/if}
+{#if state === 1}
+	<section id="find">
 		<button
 			class="button icon"
 			on:click={() => {
@@ -292,29 +294,28 @@
 				⚲
 			</div>
 		</button>
-	{/if}
-	{#if !hideSearch}
-		{@const features = boundarySource
-			.getFeatures()
-			.filter((feature) => feature.get('name').toLowerCase().includes(search.toLowerCase()))}
-		<div class:search={!hideSearch}>
-			<input class:textfield={!hideSearch} bind:this={searchRef} bind:value={search} />
-			<div class="results">
-				{#each features as feature}
-					<button
-						on:click={() => {
-							select.getFeatures().push(feature);
-							view.animate({ center: getFeatureCenter(feature), duration: 500 });
-						}}
-					>
-						{feature.get('name')}
-					</button>
-				{/each}
+		{#if !hideSearch}
+			{@const features = boundarySource
+				.getFeatures()
+				.filter((feature) => feature.get('name').toLowerCase().includes(search.toLowerCase()))}
+			<div class:search={!hideSearch}>
+				<input class:textfield={!hideSearch} bind:this={searchRef} bind:value={search} />
+				<div class="results">
+					{#each features as feature}
+						<button
+							on:click={() => {
+								select.getFeatures().push(feature);
+								view.animate({ center: getFeatureCenter(feature), duration: 500 });
+							}}
+						>
+							{feature.get('name')}
+						</button>
+					{/each}
+				</div>
 			</div>
-		</div>
-	{/if}
-</section>
-{#if state === 1}
+		{/if}
+	</section>
+
 	<button
 		class="button nav left"
 		on:click={() =>
@@ -359,7 +360,7 @@
 		animation: clear ease forwards 0.5s;
 	}
 
-	#info {
+	.info {
 		position: absolute;
 		top: 6.5%;
 		left: 2%;
@@ -369,6 +370,12 @@
 		background: white;
 
 		padding: 1rem;
+	}
+
+	.centered {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
 	}
 
 	#analysis {
