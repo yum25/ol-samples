@@ -92,7 +92,7 @@
 		}
 	});
 
-	complete.subscribe((_) => {
+	function onComplete() {
 		boundaryLayer.setStyle((feature) => baseStyle(feature));
 
 		if ($complete) {
@@ -151,7 +151,7 @@
 				});
 			}, 100);
 		}
-	});
+	}
 
 	onMount(() => {
 		map = new CanvasMap({
@@ -175,35 +175,46 @@
 
 <div id="map" class:unblur={state > 0}></div>
 <button class="button window" on:click={() => (hide = !hide)}> ― </button>
-<section class="info" class:centered={state === 2} class:collapsed={hide}>
-	{#if $complete}
-		{@const accuracy = getBordersAccuracy(
-			boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
-		)}
-		<div>
-			<div style="display: flex;">
-				<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
-					<b>{accuracy}%</b>
-				</div>
-				<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
+{#if $complete}
+	{@const accuracy = getBordersAccuracy(
+		boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
+	)}
+	<section id="analysis" class:collapsed={hide}>
+		<div style="display: flex;">
+			<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
+				<b>{accuracy}%</b>
 			</div>
-			<p>
-				You got {getBordersAccuracy(
-					boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
-				)}% of the bordering counties positioned correctly!
-			</p>
-
-			<button class="button command" bind:this={exportPng}>Download PNG</button>
-			<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
-			<form style="display: flex; flex-direction: column;" method="POST">
-				<label for="city_live">Which city do you live in?</label>
-				<CitySelect name="city_live" bind:value={city_live} />
-				<label for="city_work">Which city do you work in?</label>
-				<CitySelect name="city_work" bind:value={city_work} />
-				<label for="city_visit">What city do you most enjoy visiting?</label>
-				<CitySelect name="city_visit" bind:value={city_visit} />
-				<label for="city_avoid">What city do you avoid visiting?</label>
-				<CitySelect name="city_avoid" bind:value={city_avoid} />
+			<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
+		</div>
+		<p>
+			You got {getBordersAccuracy(
+				boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
+			)}% of the bordering counties positioned correctly!
+		</p>
+		<button class="button command" bind:this={exportPng}>Download PNG</button>
+		<a id="image-download" download="map.png" bind:this={downloadImg} aria-hidden="true" />
+	</section>
+{/if}
+<section id="info" class:collapsed={hide}>
+	{#if $complete}
+		<div>
+			<form style="display: flex; flex-direction: column; gap: 1rem;" method="POST">
+				<span>
+					<label for="city_live"><b>1) Which city do you live in?</b></label>
+					<CitySelect name="city_live" bind:value={city_live} />
+				</span>
+				<span>
+					<label for="city_work"><b>2) Which city do you work in?</b></label>
+					<CitySelect name="city_work" bind:value={city_work} />
+				</span>
+				<span>
+					<label for="city_visit"><b>3) What city do you most enjoy visiting?</b></label>
+					<CitySelect name="city_visit" bind:value={city_visit} />
+				</span>
+				<span>
+					<label for="city_avoid"><b>4) What city do you avoid visiting?</b></label>
+					<CitySelect name="city_avoid" bind:value={city_avoid} />
+				</span>
 				<button
 					disabled={!cities.includes(city_live) ||
 						!cities.includes(city_work) ||
@@ -254,6 +265,7 @@
 				class="button command"
 				on:click={() => {
 					$complete = true;
+					onComplete();
 					state = state + 1;
 					map.removeInteraction(translate);
 					map.removeInteraction(select);
@@ -350,7 +362,7 @@
 		animation: clear ease forwards 0.5s;
 	}
 
-	.info {
+	#info {
 		position: absolute;
 		top: 6.5%;
 		left: 2%;
@@ -360,6 +372,23 @@
 		background: white;
 
 		padding: 1rem;
+	}
+
+	#analysis {
+		position: absolute;
+		top: 6.5%;
+		right: 2%;
+
+		max-width: 30rem;
+		border-radius: 0.5rem;
+		background: white;
+
+		padding: 1rem;
+	}
+
+	form > span {
+		display: grid;
+		gap: 0.5rem;
 	}
 
 	.collapsed {

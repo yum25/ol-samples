@@ -22,16 +22,20 @@
 {/if}
 
 <style>
-	input {
-		outline: 1px solid black;
+	input,
+	input:focus {
+		outline: 1px solid lightgray;
 		border: none;
 
 		height: 2rem;
+		width: 28rem;
+
 		font-size: 1rem;
 		padding: 0.25rem 0.25rem 0.25rem 1rem;
 	}
 
 	.dropdown {
+		width: 29rem;
 		max-height: 15rem;
 		overflow-y: scroll;
 
@@ -47,7 +51,8 @@
 		border-bottom: 1px solid lightgray;
 		background: none;
 
-		padding: 0.5rem;
+		padding-top: 0.5rem;
+		padding-bottom: 0.5rem;
 		font-size: 1rem;
 	}
 </style>
