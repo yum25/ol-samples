@@ -11,13 +11,13 @@ export const actions = {
 		const city_visit = data.get('city_visit');
 		const city_avoid = data.get('city_avoid');
 
-		if (!placements || !city_live || !city_work || !city_avoid) {
+		if (!placements || !city_live || !city_work || !city_avoid || !city_visit) {
 			return fail(400);
 		}
 
-		const insertion = await sql(`INSERT INTO submissions (
-			placements, city_live, city_work, city_visit, city_avoid
-			) VALUES ('${placements}', '${city_live}', '${city_work}', '${city_visit}', '${city_avoid}')`);
+		const insertion = await sql`
+		INSERT INTO submissions (city_live, city_work, city_visit, city_avoid, placements)
+		SELECT '${city_live}', '${city_work}', '${city_visit}', '${city_avoid}', '${placements}'`;
 
 		console.log(insertion);
 	}

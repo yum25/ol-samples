@@ -179,7 +179,7 @@
 						boundarySource.getFeatures().reduce(
 							(dict, feature) => ({
 								...dict,
-								[feature.get('name')]: feature.getGeometry().getCoordinates()
+								[feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry
 							}),
 							{}
 						)
@@ -375,21 +375,6 @@
 		width: 2.1rem;
 
 		font-weight: bold;
-	}
-
-	.command {
-		background: rgb(2, 176, 2);
-		border-radius: 0.15rem;
-		padding: 0.5rem;
-
-		color: white;
-		font-weight: bold;
-		font-size: 1rem;
-		text-transform: uppercase;
-	}
-
-	.command:hover {
-		background: rgb(0, 140, 0);
 	}
 
 	.nav {
