@@ -2,6 +2,7 @@ import { sql } from '$lib/db.js';
 import { fail, redirect } from '@sveltejs/kit';
 import type { Geometry } from 'ol/geom.js';
 
+// TODO: add errror handling
 export const actions = {
 	default: async ({ request }) => {
 		const data = await request.formData();
@@ -22,10 +23,13 @@ export const actions = {
 			VALUES (${city_live}, ${city_work}, ${city_visit}, ${city_avoid}) RETURNING rid`
 		)[0];
 
-		Object.entries(placements).forEach(async ([name, geometry]: [string, Geometry]) => {
-			await sql`INSERT INTO placements (rid, name, location) VALUES(${rid}, ${name}, ST_GeomFromGeoJSON(${geometry}))`;
-		});
+		const insertions = Object.entries(placements).map(
+			([name, geometry]: [string, Geometry]) =>
+				sql`INSERT INTO placements (rid, name, location) VALUES(${rid}, ${name}, ST_GeomFromGeoJSON(${geometry}))`
+		);
 
-		redirect(302, `analysis/${rid}`);
+		await Promise.all(insertions);
+
+		redirect(302, `/analysis/${rid}`);
 	}
 };
