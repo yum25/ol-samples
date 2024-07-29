@@ -8,7 +8,7 @@
 
 	import { getCenter } from 'ol/extent';
 	import { useGeographic } from 'ol/proj';
-	import { Polygon } from 'ol/geom';
+	import { MultiPolygon, Polygon } from 'ol/geom';
 	import { stylefunction } from 'ol-mapbox-style';
 
 	import { onMount } from 'svelte';
@@ -68,8 +68,12 @@
 				Object.keys(placements).includes(feature.get('name')) &&
 				feature.get('name') !== 'Detroit'
 			) {
+				const placement = JSON.parse(placements[feature.get('name')]);
+
 				feature.setGeometry(
-					new Polygon(JSON.parse(placements[feature.get('name')])['coordinates'])
+					placement.type === 'Polygon'
+						? new Polygon(placement.coordinates)
+						: new MultiPolygon(placement.coordinates)
 				);
 			}
 		});
