@@ -66,10 +66,11 @@
 			feature.set('default', feature.clone());
 			if (
 				Object.keys(placements).includes(feature.get('name')) &&
-				feature.get('name') !== 'Detroit' &&
-				feature.get('name') !== 'Ecorse'
+				feature.get('name') !== 'Detroit'
 			) {
-				feature.setGeometry(new Polygon(placements[feature.get('name')]));
+				feature.setGeometry(
+					new Polygon(JSON.parse(placements[feature.get('name')])['coordinates'])
+				);
 			}
 		});
 	});

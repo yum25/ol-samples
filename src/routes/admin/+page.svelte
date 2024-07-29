@@ -11,18 +11,18 @@
 <main>
 	<h1>Submissions</h1>
 	<section>
-		{#each data.submissions as response}
+		{#each data.submissions as { rid, city_live, city_work, city_visit, city_avoid, placements }}
 			<div class="submission">
-				<p><b>What city do you live in?: </b>{response.city_live}</p>
-				<p><b>What city do you work in?: </b>{response.city_work}</p>
-				<p><b>What city do you most enjoy visiting?: </b>{response.city_visit}</p>
-				<p><b>What city do you avoid visiting?: </b>{response.city_avoid}</p>
-				<Map id={`${response.rid}`} placements={response.placements} />
+				<p><b>What city do you live in?: </b>{city_live}</p>
+				<p><b>What city do you work in?: </b>{city_work}</p>
+				<p><b>What city do you most enjoy visiting?: </b>{city_visit}</p>
+				<p><b>What city do you avoid visiting?: </b>{city_avoid}</p>
+				<Map id={`${rid}`} {placements} />
 				<form
 					method="POST"
 					action="?/delete"
 					use:enhance={() => {
-						deleting = response.id;
+						deleting = rid;
 						return async ({ update }) => {
 							if (confirm('Are you sure you want to delete this submission?')) {
 								await update();
@@ -32,8 +32,8 @@
 						};
 					}}
 				>
-					<input type="hidden" name="identifier" value={response.rid} />
-					<Button disabled={deleting === response.rid}>Delete submission</Button>
+					<input type="hidden" name="identifier" value={rid} />
+					<Button disabled={deleting === rid}>Delete submission</Button>
 				</form>
 			</div>
 		{/each}
