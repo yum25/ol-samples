@@ -5,10 +5,10 @@ import type { PageServerLoad } from '../$types';
 
 export const load: PageServerLoad = async ({ cookies }) => {
 	const submissions = await sql(`
-		SELECT rid, submissions.city_live, submissions.city_work, submissions.city_visit, submissions.city_avoid, submissions.created_at, 
-		json_object_agg(placements.name, ST_AsGeoJSON(placements.location)) as placements
-		FROM submissions
-		LEFT JOIN placements USING (rid)
+		SELECT rid, s.city_live, s.city_work, s.city_visit, s.city_avoid, s.created_at, 
+		json_object_agg(p.name, ST_AsGeoJSON(p.location)) as placements
+		FROM submissions s
+		LEFT JOIN placements p USING (rid)
 		GROUP BY rid`);
 
 	return { submissions };
