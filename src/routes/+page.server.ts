@@ -1,5 +1,5 @@
 import { sql } from '$lib/db.js';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import type { Geometry } from 'ol/geom.js';
 
 export const actions = {
@@ -25,5 +25,7 @@ export const actions = {
 		Object.entries(placements).forEach(async ([name, geometry]: [string, Geometry]) => {
 			await sql`INSERT INTO placements (rid, name, location) VALUES(${rid}, ${name}, ST_GeomFromGeoJSON(${geometry}))`;
 		});
+
+		redirect(302, `analysis/${rid}`);
 	}
 };
