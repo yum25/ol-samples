@@ -12,14 +12,16 @@
 
 	import { onMount } from 'svelte';
 
-	import { baseSource, getCountiesExtent } from '$lib/utils';
+	import Button from '$lib/components/button.svelte';
+	import { baseSource, getCountiesExtent, getBordersAccuracy, isDetroit } from '$lib/utils';
 	import { baseStyle } from '$lib/styles';
 	import boundaries from '$lib/references/boundaries.json';
 	import coords from '$lib/references/coords.json';
-	import styles from '$lib/styles.json';
+	import styles from '$lib/references/basestyles.json';
 
 	export let data;
 	let map: CanvasMap;
+	let accuracy: number;
 
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
@@ -57,7 +59,9 @@
 
 		stylefunction(baseLayer, styles, 'esri');
 
-		boundarySource.getFeatures().forEach((feature) => {
+		const features = boundarySource.getFeatures();
+
+		features.forEach((feature, i) => {
 			feature.set('default', feature.clone());
 			if (Object.keys(coords).includes(feature.get('name'))) {
 				const placement = JSON.parse(data.submission.placements[feature.get('name')]);
@@ -68,14 +72,56 @@
 						: new MultiPolygon(placement.coordinates)
 				);
 			}
+
+			if (i === features.length - 1) {
+				accuracy = getBordersAccuracy(features.filter((feature) => !isDetroit(feature)));
+				boundaryLayer.setStyle((feature) => baseStyle(feature));
+			}
 		});
 	});
 </script>
 
 <div id="map"></div>
 
+<section id="analysis">
+	<div style="display: flex;">
+		<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
+			<b>{accuracy}%</b>
+		</div>
+		<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
+	</div>
+	<p>
+		You got {accuracy}% of the bordering municipalities positioned correctly!
+	</p>
+	<Button
+		on:click={() => {
+			const url = map.getTargetElement()?.querySelector('canvas')?.toDataURL('image/png');
+
+			if (!!url) {
+				const a = document.createElement('a');
+				a.download = 'map.png';
+				a.href = url;
+				a.click();
+				a.remove();
+			}
+		}}>Download PNG</Button
+	>
+</section>
+
 <style>
 	#map {
 		height: 100vh;
+	}
+
+	#analysis {
+		position: absolute;
+		top: 6.5%;
+		left: 2%;
+
+		max-width: 30rem;
+		border-radius: 0.5rem;
+		background: white;
+
+		padding: 1rem;
 	}
 </style>
