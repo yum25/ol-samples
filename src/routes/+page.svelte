@@ -31,7 +31,7 @@
 	import { complete } from '$lib/stores';
 
 	let map: CanvasMap;
-
+	let positions = coords as Record<string, number[][][]>;
 	let searchRef: HTMLInputElement;
 
 	let state = 0;
@@ -99,8 +99,8 @@
 
 		boundarySource.getFeatures().forEach((feature) => {
 			feature.set('default', feature.clone());
-			if (Object.keys(coords).includes(feature.get('name'))) {
-				feature.setGeometry(new Polygon(coords[feature.get('name')]));
+			if (Object.keys(positions).includes(feature.get('name'))) {
+				feature.setGeometry(new Polygon(positions[feature.get('name')]));
 			}
 		});
 	});
