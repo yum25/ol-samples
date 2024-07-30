@@ -15,13 +15,16 @@
 		on:blur={() => setTimeout(() => (focused = false), 100)}
 	/>
 	{#if value.length > 0 && focused}
-		<div class="dropdown">
-			{#each cities as city}
-				{#if city.toLowerCase().includes(value.toLowerCase()) && focused}
+		{@const filteredCities = cities.filter((city) =>
+			city.toLowerCase().includes(value.toLowerCase())
+		)}
+		{#if filteredCities.length > 0}
+			<div class="dropdown">
+				{#each filteredCities as city}
 					<button type="button" on:click={() => (value = city)}>{city}</button>
-				{/if}
-			{/each}
-		</div>
+				{/each}
+			</div>
+		{/if}
 	{/if}
 </span>
 
