@@ -4,6 +4,7 @@ import type { FeatureLike } from 'ol/Feature';
 import type { Geometry } from 'ol/geom';
 import VectorTile from 'ol/source/VectorTile';
 import MVT from 'ol/format/MVT';
+import { tolerance } from './constants';
 
 export const baseSource = new VectorTile({
 	attributions:
@@ -26,8 +27,6 @@ export const getCountiesExtent = () => {
 
 export const isDetroit = (feature: FeatureLike) => feature.get('name') === 'Detroit';
 
-export const coordinatesEqual = (a: number[], b: number[]) => a[0] === b[0] && a[1] === b[1];
-
 export const getFeatureCenter = (feature: FeatureLike) => {
 	return getCenter((feature.getGeometry() as Geometry).getExtent());
 };
@@ -39,11 +38,12 @@ export const getDistanceFromDefault = (feature: FeatureLike) => {
 	return Math.hypot(Math.abs(newCenter[0] - oldCenter[0]), Math.abs(newCenter[1] - oldCenter[1]));
 };
 
+export const borderCorrect = (feature: FeatureLike) => {
+	return getDistanceFromDefault(feature) < tolerance;
+};
+
 export const getNumberCorrect = (features: FeatureLike[]) => {
-	return features.reduce(
-		(correct, feature) => +(getDistanceFromDefault(feature) === 0) + correct,
-		0
-	);
+	return features.reduce((correct, feature) => +borderCorrect(feature) + correct, 0);
 };
 
 export const getBordersAccuracy = (features: FeatureLike[]) => {

@@ -15,21 +15,20 @@
 
 	import {
 		baseSource,
-		getBordersAccuracy,
 		getCountiesExtent,
 		getDistanceFromDefault,
-		getFeatureCenter,
-		isDetroit
+		getFeatureCenter
 	} from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
-	import { complete } from '$lib/stores';
 	import CitySelect from '$lib/components/cityselect.svelte';
 	import Button from '$lib/components/button.svelte';
 
 	import boundaries from '$lib/references/boundaries.json';
 	import coords from '$lib/references/coords.json';
-	import styles from '$lib/styles.json';
+	import styles from '$lib/references/basestyles.json';
 	import cities from '$lib/references/cities.json';
+	import { tolerance } from '$lib/constants';
+	import { complete } from '$lib/stores';
 
 	let map: CanvasMap;
 
@@ -82,7 +81,7 @@
 
 	translate.on('translateend', (e) => {
 		const feature = e.features.getArray()[0];
-		if (getDistanceFromDefault(feature) < 0.005) {
+		if (getDistanceFromDefault(feature) < tolerance) {
 			feature.setGeometry(feature.get('default').clone().getGeometry());
 		}
 	});
@@ -114,77 +113,8 @@
 </script>
 
 <div id="map" class:unblur={state > 0}></div>
-{#if $complete}
-	{@const accuracy = getBordersAccuracy(
-		boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
-	)}
-	<section id="analysis" class:collapsed={hide}>
-		<div style="display: flex;">
-			<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
-				<b>{accuracy}%</b>
-			</div>
-			<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
-		</div>
-		<p>
-			You got {getBordersAccuracy(
-				boundarySource.getFeatures().filter((feature) => !isDetroit(feature))
-			)}% of the bordering counties positioned correctly!
-		</p>
-		<Button
-			on:click={() => {
-				const url = map.getTargetElement()?.querySelector('canvas')?.toDataURL('image/png');
-
-				if (!!url) {
-					const a = document.createElement('a');
-					a.download = 'map.png';
-					a.href = url;
-					a.click();
-					a.remove();
-				}
-			}}>Download PNG</Button
-		>
-	</section>
-{/if}
 <section class="info" class:centered={state === 0} class:collapsed={hide}>
-	{#if $complete}
-		<div>
-			<form style="display: flex; flex-direction: column; gap: 1rem;" method="POST">
-				<CitySelect name="city_live" bind:value={city_live} label="1) Which city do you live in?" />
-				<CitySelect name="city_work" bind:value={city_work} label="2) Which city do you work in?" />
-				<CitySelect
-					name="city_visit"
-					bind:value={city_visit}
-					label="3) What city do you most enjoy visiting?"
-				/>
-				<CitySelect
-					name="city_avoid"
-					bind:value={city_avoid}
-					label="4) What city do you avoid visiting?"
-				/>
-				<Button
-					disabled={!cities.includes(city_live) ||
-						!cities.includes(city_work) ||
-						!cities.includes(city_visit) ||
-						!cities.includes(city_avoid)}
-				>
-					Submit Attempt
-				</Button>
-				<input
-					type="hidden"
-					name="features"
-					value={JSON.stringify(
-						boundarySource.getFeatures().reduce(
-							(dict, feature) => ({
-								...dict,
-								[feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry
-							}),
-							{}
-						)
-					)}
-				/>
-			</form>
-		</div>
-	{:else if state === 0}
+	{#if state === 0}
 		<div style="text-align: center; padding: 1rem;">
 			<h1><b>Regional Mapping Puzzle</b></h1>
 			<p>
@@ -226,6 +156,44 @@
 			>
 				Finish
 			</Button>
+		</div>
+	{:else}
+		<div>
+			<form style="display: flex; flex-direction: column; gap: 1rem;" method="POST">
+				<CitySelect name="city_live" bind:value={city_live} label="1) Which city do you live in?" />
+				<CitySelect name="city_work" bind:value={city_work} label="2) Which city do you work in?" />
+				<CitySelect
+					name="city_visit"
+					bind:value={city_visit}
+					label="3) What city do you most enjoy visiting?"
+				/>
+				<CitySelect
+					name="city_avoid"
+					bind:value={city_avoid}
+					label="4) What city do you avoid visiting?"
+				/>
+				<Button
+					disabled={!cities.includes(city_live) ||
+						!cities.includes(city_work) ||
+						!cities.includes(city_visit) ||
+						!cities.includes(city_avoid)}
+				>
+					Submit Attempt
+				</Button>
+				<input
+					type="hidden"
+					name="features"
+					value={JSON.stringify(
+						boundarySource.getFeatures().reduce(
+							(dict, feature) => ({
+								...dict,
+								[feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry
+							}),
+							{}
+						)
+					)}
+				/>
+			</form>
 		</div>
 	{/if}
 </section>
@@ -333,18 +301,6 @@
 		top: 50%;
 		left: 50%;
 		transform: translate(-50%, -50%);
-	}
-
-	#analysis {
-		position: absolute;
-		top: 6.5%;
-		right: 2%;
-
-		max-width: 30rem;
-		border-radius: 0.5rem;
-		background: white;
-
-		padding: 1rem;
 	}
 
 	.collapsed {

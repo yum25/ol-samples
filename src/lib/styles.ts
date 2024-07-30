@@ -1,7 +1,7 @@
 import { Style, Fill, Stroke, Text } from 'ol/style';
 import type { FeatureLike } from 'ol/Feature';
 
-import { coordinatesEqual, getFeatureCenter, isDetroit } from './utils';
+import { borderCorrect, isDetroit } from './utils';
 import { complete } from './stores';
 
 let finished = false;
@@ -41,21 +41,14 @@ const getStroke = (feature: FeatureLike, width: number, color: string) => {
 	return new Stroke({
 		color,
 		width,
-		lineDash:
-			isDetroit(feature) ||
-			(coordinatesEqual(getFeatureCenter(feature), getFeatureCenter(feature.get('default'))) &&
-				finished)
-				? undefined
-				: [10, 5]
+		lineDash: isDetroit(feature) || (borderCorrect(feature) && finished) ? undefined : [10, 5]
 	});
 };
 
 const getFill = (feature: FeatureLike) => {
 	return new Fill({
 		color:
-			isDetroit(feature) ||
-			(coordinatesEqual(getFeatureCenter(feature), getFeatureCenter(feature.get('default'))) &&
-				finished)
+			isDetroit(feature) || (borderCorrect(feature) && finished)
 				? fill[feature.get('name')]
 				: 'rgba(200, 200, 200, 0.3)'
 	});

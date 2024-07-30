@@ -17,7 +17,7 @@
 	import { baseStyle } from '$lib/styles';
 
 	import boundaries from '$lib/references/boundaries.json';
-	import styles from '$lib/styles.json';
+	import styles from '$lib/references/basestyles.json';
 
 	export let id: string;
 	export let placements;
@@ -62,7 +62,7 @@
 
 		stylefunction(baseLayer, styles, 'esri');
 
-		boundarySource.getFeatures().forEach((feature) => {
+		boundarySource.getFeatures().forEach((feature, i) => {
 			feature.set('default', feature.clone());
 			if (
 				Object.keys(placements).includes(feature.get('name')) &&
@@ -75,6 +75,10 @@
 						? new Polygon(placement.coordinates)
 						: new MultiPolygon(placement.coordinates)
 				);
+			}
+
+			if (i === boundarySource.getFeatures().length - 1) {
+				boundaryLayer.setStyle((feature) => baseStyle(feature));
 			}
 		});
 	});
