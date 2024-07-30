@@ -8,7 +8,6 @@
 
 	import { getCenter } from 'ol/extent';
 	import { Select, Translate, defaults as defaultInteractions } from 'ol/interaction.js';
-	import { useGeographic } from 'ol/proj';
 	import { Polygon } from 'ol/geom';
 	import { stylefunction } from 'ol-mapbox-style';
 
@@ -45,8 +44,6 @@
 	let city_work = '';
 	let city_visit = '';
 	let city_avoid = '';
-
-	useGeographic();
 
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
