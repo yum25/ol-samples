@@ -16,10 +16,10 @@
 	import { baseSource, getCountiesExtent, getBordersAccuracy, isDetroit } from '$lib/utils';
 	import { baseStyle } from '$lib/styles';
 	import boundaries from '$lib/references/boundaries.json';
-	import coords from '$lib/references/coords.json';
 	import styles from '$lib/references/basestyles.json';
 
 	export let data;
+	let { rid, created_at, placements } = data.submission;
 	let map: CanvasMap;
 	let accuracy: number;
 
@@ -63,8 +63,8 @@
 
 		features.forEach((feature, i) => {
 			feature.set('default', feature.clone());
-			if (Object.keys(coords).includes(feature.get('name'))) {
-				const placement = JSON.parse(data.submission.placements[feature.get('name')]);
+			if (Object.keys(placements).includes(feature.get('name'))) {
+				const placement = JSON.parse(placements[feature.get('name')]);
 
 				feature.setGeometry(
 					placement.type === 'Polygon'
