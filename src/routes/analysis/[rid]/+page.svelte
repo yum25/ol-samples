@@ -75,7 +75,6 @@
 
 			if (i === features.length - 1) {
 				accuracy = getBordersAccuracy(features.filter((feature) => !isDetroit(feature)));
-				boundaryLayer.setStyle((feature) => viewStyle(feature));
 			}
 		});
 	});
