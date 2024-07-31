@@ -14,7 +14,7 @@
 
 	import Button from '$lib/components/button.svelte';
 	import { baseSource, getCountiesExtent, getBordersAccuracy, isDetroit } from '$lib/utils';
-	import { baseStyle } from '$lib/styles';
+	import { viewStyle } from '$lib/styles';
 	import boundaries from '$lib/references/boundaries.json';
 	import styles from '$lib/references/basestyles.json';
 
@@ -38,7 +38,7 @@
 
 	const boundaryLayer = new VectorLayer({
 		source: boundarySource,
-		style: (feature) => baseStyle(feature)
+		style: (feature) => viewStyle(feature)
 	});
 
 	const view = new View({
@@ -75,7 +75,7 @@
 
 			if (i === features.length - 1) {
 				accuracy = getBordersAccuracy(features.filter((feature) => !isDetroit(feature)));
-				boundaryLayer.setStyle((feature) => baseStyle(feature));
+				boundaryLayer.setStyle((feature) => viewStyle(feature));
 			}
 		});
 	});

@@ -14,7 +14,7 @@
 	import { onMount } from 'svelte';
 
 	import { baseSource, getCountiesExtent } from '$lib/utils';
-	import { baseStyle } from '$lib/styles';
+	import { viewStyle } from '$lib/styles';
 
 	import boundaries from '$lib/references/boundaries.json';
 	import styles from '$lib/references/basestyles.json';
@@ -41,7 +41,7 @@
 
 	const boundaryLayer = new VectorLayer({
 		source: boundarySource,
-		style: (feature) => baseStyle(feature)
+		style: (feature) => viewStyle(feature)
 	});
 
 	const view = new View({
@@ -75,10 +75,6 @@
 						? new Polygon(placement.coordinates)
 						: new MultiPolygon(placement.coordinates)
 				);
-			}
-
-			if (i === boundarySource.getFeatures().length - 1) {
-				boundaryLayer.setStyle((feature) => baseStyle(feature));
 			}
 		});
 	});

@@ -28,7 +28,6 @@
 	import styles from '$lib/references/basestyles.json';
 	import cities from '$lib/references/cities.json';
 	import { tolerance } from '$lib/constants';
-	import { complete } from '$lib/stores';
 
 	let map: CanvasMap;
 	let positions = coords as Record<string, number[][][]>;
@@ -141,8 +140,6 @@
 			<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
 			<Button
 				on:click={() => {
-					$complete = true;
-					boundaryLayer.setStyle((feature) => baseStyle(feature));
 					view.animate({
 						center: [-83.08403507579606, 42.382668117209296],
 						zoom: 11.3,

@@ -2,10 +2,6 @@ import { Style, Fill, Stroke, Text } from 'ol/style';
 import type { FeatureLike } from 'ol/Feature';
 
 import { borderCorrect, isDetroit } from './utils';
-import { complete } from './stores';
-
-let finished = false;
-complete.subscribe((value) => (finished = value));
 
 const fill: Record<string, string> = {
 	Southfield: 'rgba(100, 143, 255, 0.3)',
@@ -41,14 +37,14 @@ const getStroke = (feature: FeatureLike, width: number, color: string) => {
 	return new Stroke({
 		color,
 		width,
-		lineDash: isDetroit(feature) || (borderCorrect(feature) && finished) ? undefined : [10, 5]
+		lineDash: isDetroit(feature) || borderCorrect(feature) ? undefined : [10, 5]
 	});
 };
 
 const getFill = (feature: FeatureLike) => {
 	return new Fill({
 		color:
-			isDetroit(feature) || (borderCorrect(feature) && finished)
+			isDetroit(feature) || borderCorrect(feature)
 				? fill[feature.get('name')]
 				: 'rgba(200, 200, 200, 0.3)'
 	});
@@ -68,7 +64,7 @@ const text = (feature: FeatureLike, color: string) =>
 		overflow: !isDetroit(feature)
 	});
 
-export const baseStyle = (feature: FeatureLike) => {
+export const viewStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, 'rgb(39, 39, 39)'),
 		stroke: getStroke(feature, 2, 'rgb(39, 39, 39)'),
@@ -79,8 +75,16 @@ export const baseStyle = (feature: FeatureLike) => {
 export const selectStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, '#3489eb'),
-		stroke: getStroke(feature, 4, '#3489eb'),
+		stroke: new Stroke({ width: 4, color: '#3489eb', lineDash: [10, 5] }),
 		zIndex: 1,
-		fill: getFill(feature)
+		fill: new Fill({ color: 'rgba(200, 200, 200, 0.3)' })
+	});
+};
+
+export const baseStyle = (feature: FeatureLike) => {
+	return new Style({
+		text: text(feature, 'rgb(39, 39, 39)'),
+		stroke: new Stroke({ width: 2, color: 'rgb(39, 39, 39)', lineDash: [10, 5] }),
+		fill: new Fill({ color: 'rgba(200, 200, 200, 0.3)' })
 	});
 };
