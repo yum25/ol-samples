@@ -84,10 +84,14 @@
 
 <section id="analysis">
 	<div style="display: flex;">
-		<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
-			<b>{accuracy}%</b>
-		</div>
-		<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
+		{#if accuracy !== 0}
+			<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
+				<b>{accuracy}%</b>
+			</div>
+		{/if}
+		{#if 100 - accuracy !== 0}
+			<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
+		{/if}
 	</div>
 	<p>
 		You got {accuracy}% of the bordering municipalities positioned correctly!
