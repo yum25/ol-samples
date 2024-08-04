@@ -17,7 +17,8 @@
 		baseSource,
 		getCountiesExtent,
 		getDistanceFromDefault,
-		getFeatureCenter
+		getFeatureCenter,
+		isStatic
 	} from '$lib/utils';
 	import { baseStyle, selectStyle } from '$lib/styles';
 	import CitySelect from '$lib/components/cityselect.svelte';
@@ -155,6 +156,7 @@
 			</Button>
 		</div>
 	{:else}
+		{@const boundaries = boundarySource.getFeatures().filter((feature) => !isStatic(feature))}
 		<div>
 			<form style="display: flex; flex-direction: column; gap: 1rem;" method="POST">
 				<CitySelect name="city_live" bind:value={city_live} label="1) Which city do you live in?" />
@@ -181,7 +183,7 @@
 					type="hidden"
 					name="features"
 					value={JSON.stringify(
-						boundarySource.getFeatures().reduce(
+						boundaries.reduce(
 							(dict, feature) => ({
 								...dict,
 								[feature.get('name')]: geojsonFormatter.writeFeatureObject(feature).geometry

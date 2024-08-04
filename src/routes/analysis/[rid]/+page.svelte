@@ -13,7 +13,7 @@
 	import { onMount } from 'svelte';
 
 	import Button from '$lib/components/button.svelte';
-	import { baseSource, getCountiesExtent, getBordersAccuracy, isDetroit } from '$lib/utils';
+	import { baseSource, getCountiesExtent, getBordersAccuracy, isStatic } from '$lib/utils';
 	import { viewStyle } from '$lib/styles';
 	import boundaries from '$lib/references/boundaries.json';
 	import styles from '$lib/references/basestyles.json';
@@ -74,7 +74,7 @@
 			}
 
 			if (i === features.length - 1) {
-				accuracy = getBordersAccuracy(features.filter((feature) => !isDetroit(feature)));
+				accuracy = getBordersAccuracy(features.filter((feature) => !isStatic(feature)));
 			}
 		});
 	});
