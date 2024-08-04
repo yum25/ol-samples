@@ -25,7 +25,8 @@ export const getCountiesExtent = () => {
 	return border.getExtent();
 };
 
-export const isDetroit = (feature: FeatureLike) => feature.get('name') === 'Detroit';
+export const isStatic = (feature: FeatureLike) =>
+	feature.get('name') === 'Detroit' || feature.get('name') === 'Windsor';
 
 export const getFeatureCenter = (feature: FeatureLike) => {
 	return getCenter((feature.getGeometry() as Geometry).getExtent());

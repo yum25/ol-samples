@@ -1,7 +1,7 @@
 import { Style, Fill, Stroke, Text } from 'ol/style';
 import type { FeatureLike } from 'ol/Feature';
 
-import { borderCorrect, isDetroit } from './utils';
+import { borderCorrect, isStatic } from './utils';
 
 const fill: Record<string, string> = {
 	Southfield: 'rgba(100, 143, 255, 0.3)',
@@ -30,23 +30,37 @@ const fill: Record<string, string> = {
 
 	Hamtramck: 'rgba(100, 143, 255, 0.3)',
 	Detroit: 'rgba(168, 208, 178, 0.3)',
-	Windsor: 'rgba(120, 94, 240, 0.3)'
+	Windsor: 'rgba(168, 208, 178, 0.3)'
 };
 
-const getStroke = (feature: FeatureLike, width: number, color: string) => {
+const viewStroke = (feature: FeatureLike, width: number, color: string) => {
 	return new Stroke({
 		color,
 		width,
-		lineDash: isDetroit(feature) || borderCorrect(feature) ? undefined : [10, 5]
+		lineDash: isStatic(feature) || borderCorrect(feature) ? undefined : [10, 5]
 	});
 };
 
-const getFill = (feature: FeatureLike) => {
+const viewFill = (feature: FeatureLike) => {
 	return new Fill({
 		color:
-			isDetroit(feature) || borderCorrect(feature)
+			isStatic(feature) || borderCorrect(feature)
 				? fill[feature.get('name')]
 				: 'rgba(200, 200, 200, 0.3)'
+	});
+};
+
+const baseStroke = (feature: FeatureLike, width: number, color: string) => {
+	return new Stroke({
+		color,
+		width,
+		lineDash: isStatic(feature) ? undefined : [10, 5]
+	});
+};
+
+const baseFill = (feature: FeatureLike) => {
+	return new Fill({
+		color: isStatic(feature) ? fill[feature.get('name')] : 'rgba(200, 200, 200, 0.3)'
 	});
 };
 
@@ -61,30 +75,30 @@ const text = (feature: FeatureLike, color: string) =>
 			width: 3
 		}),
 		font: feature.get('name') !== 'Detroit' ? '14px sans-serif' : '16px sans-serif',
-		overflow: !isDetroit(feature)
+		overflow: !isStatic(feature)
 	});
 
 export const viewStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, 'rgb(39, 39, 39)'),
-		stroke: getStroke(feature, 2, 'rgb(39, 39, 39)'),
-		fill: getFill(feature)
+		stroke: viewStroke(feature, 2, 'rgb(39, 39, 39)'),
+		fill: viewFill(feature)
 	});
 };
 
 export const selectStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, '#3489eb'),
-		stroke: new Stroke({ width: 4, color: '#3489eb', lineDash: [10, 5] }),
+		stroke: baseStroke(feature, 4, '#3489eb'),
 		zIndex: 1,
-		fill: new Fill({ color: 'rgba(200, 200, 200, 0.3)' })
+		fill: baseFill(feature)
 	});
 };
 
 export const baseStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, 'rgb(39, 39, 39)'),
-		stroke: new Stroke({ width: 2, color: 'rgb(39, 39, 39)', lineDash: [10, 5] }),
-		fill: new Fill({ color: 'rgba(200, 200, 200, 0.3)' })
+		stroke: baseStroke(feature, 2, 'rgb(39, 39, 39)'),
+		fill: baseFill(feature)
 	});
 };
