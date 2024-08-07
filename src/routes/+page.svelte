@@ -116,6 +116,12 @@
 <section class="info" class:centered={state === 0} class:collapsed={hide}>
 	{#if state === 0}
 		<div style="text-align: center; padding: 1rem;">
+			<a href="https://detroitography.com">
+				<picture>
+					<source srcset="/logo-big.webp" type="image/webp" width="240px" height="120px" />
+					<img src="/logo-big.png" alt="Detroitography logo" width="240px" height="120px" />
+				</picture>
+			</a>
 			<h1><b>Regional Mapping Puzzle</b></h1>
 			<p>
 				Detroit is bordered by 20 municipalities, can you correctly place all of them? Michigan’s
