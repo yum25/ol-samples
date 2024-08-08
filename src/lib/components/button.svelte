@@ -1,9 +1,8 @@
 <script lang="ts">
 	export let disabled = false;
-	export let ref: HTMLButtonElement | null = null;
 </script>
 
-<button class:disabled {disabled} on:click bind:this={ref}><slot></slot></button>
+<button class:disabled {disabled} on:click><slot></slot></button>
 
 <style>
 	button {
