@@ -17,10 +17,14 @@
 
 	import boundaries from '$lib/references/boundaries.json';
 	import styles from '$lib/references/basestyles.json';
+	import html2canvas from 'html2canvas';
 
 	export let data;
 	let { rid, created_at, placements } = data.submission;
 	let map: CanvasMap;
+	let container: HTMLDivElement;
+	let dialog: HTMLDialogElement;
+
 	let accuracy: number;
 
 	const geojsonFormatter = new GeoJSON();
@@ -48,6 +52,7 @@
 	});
 
 	onMount(() => {
+		dialog.showModal();
 		map = new CanvasMap({
 			target: 'map',
 			layers: [baseLayer, boundaryLayer],
@@ -78,12 +83,11 @@
 	});
 </script>
 
-<div id="map"></div>
-
-<section id="analysis">
-	<div style="display: flex;">
+<div bind:this={container}>
+	<div id="map"></div>
+	<div class="bar">
 		{#if accuracy !== 0}
-			<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem;">
+			<div style="width: {accuracy}%; background: lightgreen; padding: 0.5rem; text-align: center;">
 				<b>{accuracy}%</b>
 			</div>
 		{/if}
@@ -91,12 +95,15 @@
 			<div style="width: {100 - accuracy}%; background: lightcoral; padding: 0.5rem;"></div>
 		{/if}
 	</div>
+</div>
+
+<dialog bind:this={dialog}>
 	<p>
 		You got {accuracy}% of the bordering municipalities positioned correctly!
 	</p>
 	<Button
-		on:click={() => {
-			const url = map.getTargetElement()?.querySelector('canvas')?.toDataURL('image/png');
+		on:click={async () => {
+			const url = (await html2canvas(container))?.toDataURL('image/png');
 
 			if (!!url) {
 				const a = document.createElement('a');
@@ -107,7 +114,8 @@
 			}
 		}}>Download PNG</Button
 	>
-</section>
+	<Button on:click={() => dialog.close()}>Close</Button>
+</dialog>
 
 <style>
 	#map {
@@ -124,5 +132,19 @@
 		background: white;
 
 		padding: 1rem;
+	}
+
+	.bar {
+		display: flex;
+
+		position: absolute;
+		top: 3.5%;
+		left: 5%;
+
+		width: 90%;
+
+		border-radius: 0.5rem;
+		border: 2px solid white;
+		overflow: hidden;
 	}
 </style>

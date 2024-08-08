@@ -104,6 +104,6 @@ export const selectStyle = (feature: FeatureLike) => {
 };
 
 export const submissionView = {
-	center: [-83.084035, 42.382668],
+	center: [-83.084035, 42.392668],
 	zoom: 11.3
 };

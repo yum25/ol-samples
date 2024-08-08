@@ -33,6 +33,7 @@
 	"dependencies": {
 		"@neondatabase/serverless": "^0.9.3",
 		"dotenv": "^16.4.5",
+		"html2canvas": "^1.4.1",
 		"ol": "^9.1.0",
 		"ol-mapbox-style": "^12.3.3"
 	}
