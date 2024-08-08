@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { ActionData } from '../../$types';
+
 	import Button from '$lib/components/button.svelte';
+	import TextInput from '$lib/components/textinput.svelte';
 
 	export let form: ActionData;
 
@@ -26,9 +28,7 @@
 		};
 	}}
 >
-	<label for="username">Username: </label>
-	<input name="username" />
-	<label for="password">Password: </label>
-	<input name="password" type="password" />
+	<TextInput name="username">Username:</TextInput>
+	<TextInput name="password" password>Password:</TextInput>
 	<Button disabled={submitting}>Log in</Button>
 </form>

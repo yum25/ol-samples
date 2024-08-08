@@ -1,5 +1,6 @@
 <script lang="ts">
 	import cities from '../references/cities.json';
+	import TextInput from './textinput.svelte';
 	export let name: string;
 	export let value: string;
 	export let label: string;
@@ -7,13 +8,14 @@
 </script>
 
 <span>
-	<label for={name}><b>{label}</b></label>
-	<input
+	<TextInput
 		bind:value
 		{name}
 		on:focus={() => (focused = true)}
 		on:blur={() => setTimeout(() => (focused = false), 100)}
-	/>
+	>
+		<b>{label}</b>
+	</TextInput>
 	{#if value.length > 0 && focused}
 		{@const filteredCities = cities.filter((city) =>
 			city.toLowerCase().includes(value.toLowerCase())
@@ -32,17 +34,6 @@
 	span {
 		display: grid;
 		gap: 0.5rem;
-	}
-	input,
-	input:focus {
-		outline: 1px solid lightgray;
-		border: none;
-
-		height: 2rem;
-		width: 28rem;
-
-		font-size: 1rem;
-		padding: 0.25rem 0.25rem 0.25rem 1rem;
 	}
 
 	.dropdown {
