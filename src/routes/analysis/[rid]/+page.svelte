@@ -11,7 +11,6 @@
 
 	import { onMount } from 'svelte';
 
-	import Button from '$lib/components/button.svelte';
 	import { baseSource, getCountiesExtent, getBordersAccuracy, isStatic } from '$lib/utils';
 	import { viewStyle, submissionView } from '$lib/styles';
 
@@ -98,23 +97,42 @@
 </div>
 
 <dialog bind:this={dialog}>
-	<p>
-		You got {accuracy}% of the bordering municipalities positioned correctly!
-	</p>
-	<Button
-		on:click={async () => {
-			const url = (await html2canvas(container))?.toDataURL('image/png');
-
-			if (!!url) {
-				const a = document.createElement('a');
-				a.download = 'map.png';
-				a.href = url;
-				a.click();
-				a.remove();
-			}
-		}}>Download PNG</Button
+	<button class="btn" style="float: right; font-size: 1.5rem;" on:click={() => dialog.close()}
+		>✕</button
 	>
-	<Button on:click={() => dialog.close()}>Close</Button>
+	<p>
+		You got <b>{accuracy}%</b> of the bordering municipalities positioned correctly!
+	</p>
+	<hr style="border: 0.5px solid lightgray;" />
+	<div id="actions">
+		<button class="action btn">
+			<div class="icon"></div>
+			<p>Share</p>
+		</button>
+
+		<button
+			class="action btn"
+			on:click={async () => {
+				const url = (await html2canvas(container))?.toDataURL('image/png');
+
+				if (!!url) {
+					const a = document.createElement('a');
+					a.download = 'map.png';
+					a.href = url;
+					a.click();
+					a.remove();
+				}
+			}}
+		>
+			<div class="icon"></div>
+			<p>Get Results</p>
+		</button>
+
+		<button class="action btn">
+			<div class="icon"></div>
+			<p>Copy Link</p>
+		</button>
+	</div>
 </dialog>
 
 <style>
@@ -122,16 +140,56 @@
 		height: 100vh;
 	}
 
-	#analysis {
-		position: absolute;
-		top: 6.5%;
-		left: 2%;
+	#actions {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr));
+		place-content: center;
 
-		max-width: 30rem;
+		padding-left: 1rem;
+	}
+
+	dialog {
+		width: 40%;
+
+		border: none;
 		border-radius: 0.5rem;
-		background: white;
+		box-shadow: 1px 1px 5px gray;
+	}
 
-		padding: 1rem;
+	dialog > p {
+		text-align: center;
+		font-size: 1.5rem;
+	}
+
+	dialog > p > b {
+		font-size: 2.5rem;
+		background: -webkit-linear-gradient(#55c264, #7dd87d);
+		background-clip: text;
+		-webkit-background-clip: text;
+		-webkit-text-fill-color: transparent;
+	}
+
+	.btn {
+		background: none;
+		border: none;
+		font-size: 1rem;
+	}
+
+	.action {
+		display: flex;
+		align-items: center;
+	}
+
+	.action > p {
+		margin-left: 0.5rem;
+	}
+
+	.icon {
+		background: red;
+		width: 2.5rem;
+		height: 2.5rem;
+		border: 1px solid grey;
+		border-radius: 50%;
 	}
 
 	.bar {
@@ -139,9 +197,9 @@
 
 		position: absolute;
 		top: 3.5%;
-		left: 5%;
+		left: 10%;
 
-		width: 90%;
+		width: 80%;
 
 		border-radius: 0.5rem;
 		border: 2px solid white;
