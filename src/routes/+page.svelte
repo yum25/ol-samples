@@ -20,7 +20,8 @@
 		getFeatureCenter,
 		isStatic
 	} from '$lib/utils';
-	import { baseStyle, selectStyle } from '$lib/styles';
+	import { baseStyle, selectStyle, submissionView } from '$lib/styles';
+
 	import CitySelect from '$lib/components/cityselect.svelte';
 	import Button from '$lib/components/button.svelte';
 
@@ -148,8 +149,7 @@
 			<Button
 				on:click={() => {
 					view.animate({
-						center: [-83.08403507579606, 42.382668117209296],
-						zoom: 11.3,
+						...submissionView,
 						duration: 500
 					});
 

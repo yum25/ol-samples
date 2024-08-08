@@ -33,6 +33,20 @@ const fill: Record<string, string> = {
 	Windsor: 'rgba(168, 208, 178, 0.3)'
 };
 
+const text = (feature: FeatureLike, color: string) =>
+	new Text({
+		text: feature.get('name'),
+		fill: new Fill({
+			color
+		}),
+		stroke: new Stroke({
+			color: 'white',
+			width: 3
+		}),
+		font: isStatic(feature) ? '16px sans-serif' : '14px sans-serif',
+		overflow: !isStatic(feature)
+	});
+
 const viewStroke = (feature: FeatureLike, width: number, color: string) => {
 	return new Stroke({
 		color,
@@ -50,6 +64,14 @@ const viewFill = (feature: FeatureLike) => {
 	});
 };
 
+export const viewStyle = (feature: FeatureLike) => {
+	return new Style({
+		text: text(feature, 'rgb(39, 39, 39)'),
+		stroke: viewStroke(feature, 2, 'rgb(39, 39, 39)'),
+		fill: viewFill(feature)
+	});
+};
+
 const baseStroke = (feature: FeatureLike, width: number, color: string) => {
 	return new Stroke({
 		color,
@@ -64,25 +86,11 @@ const baseFill = (feature: FeatureLike) => {
 	});
 };
 
-const text = (feature: FeatureLike, color: string) =>
-	new Text({
-		text: feature.get('name'),
-		fill: new Fill({
-			color
-		}),
-		stroke: new Stroke({
-			color: 'white',
-			width: 3
-		}),
-		font: feature.get('name') !== 'Detroit' ? '14px sans-serif' : '16px sans-serif',
-		overflow: !isStatic(feature)
-	});
-
-export const viewStyle = (feature: FeatureLike) => {
+export const baseStyle = (feature: FeatureLike) => {
 	return new Style({
 		text: text(feature, 'rgb(39, 39, 39)'),
-		stroke: viewStroke(feature, 2, 'rgb(39, 39, 39)'),
-		fill: viewFill(feature)
+		stroke: baseStroke(feature, 2, 'rgb(39, 39, 39)'),
+		fill: baseFill(feature)
 	});
 };
 
@@ -95,10 +103,7 @@ export const selectStyle = (feature: FeatureLike) => {
 	});
 };
 
-export const baseStyle = (feature: FeatureLike) => {
-	return new Style({
-		text: text(feature, 'rgb(39, 39, 39)'),
-		stroke: baseStroke(feature, 2, 'rgb(39, 39, 39)'),
-		fill: baseFill(feature)
-	});
+export const submissionView = {
+	center: [-83.084035, 42.382668],
+	zoom: 11.3
 };

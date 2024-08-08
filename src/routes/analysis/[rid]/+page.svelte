@@ -6,7 +6,6 @@
 	import { VectorTile } from 'ol/layer';
 	import GeoJSON from 'ol/format/GeoJSON';
 
-	import { getCenter } from 'ol/extent';
 	import { Polygon, MultiPolygon } from 'ol/geom';
 	import { stylefunction } from 'ol-mapbox-style';
 
@@ -14,7 +13,8 @@
 
 	import Button from '$lib/components/button.svelte';
 	import { baseSource, getCountiesExtent, getBordersAccuracy, isStatic } from '$lib/utils';
-	import { viewStyle } from '$lib/styles';
+	import { viewStyle, submissionView } from '$lib/styles';
+
 	import boundaries from '$lib/references/boundaries.json';
 	import styles from '$lib/references/basestyles.json';
 
@@ -25,7 +25,6 @@
 
 	const geojsonFormatter = new GeoJSON();
 	const extent = getCountiesExtent();
-	const center = getCenter(extent);
 
 	const baseLayer = new VectorTile({
 		declutter: true,
@@ -42,11 +41,10 @@
 	});
 
 	const view = new View({
-		center,
 		extent,
-		zoom: 11,
 		minZoom: 11,
-		maxZoom: 17
+		maxZoom: 17,
+		...submissionView
 	});
 
 	onMount(() => {
