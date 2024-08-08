@@ -4,4 +4,6 @@
 	useGeographic();
 </script>
 
-<slot></slot>
+<main>
+	<slot></slot>
+</main>

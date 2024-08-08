@@ -145,7 +145,9 @@
 		</div>
 	{:else if state === 1}
 		<div>
-			<p>Rearrange the county borders. To confirm your placements, press the button below.</p>
+			<p>
+				Rearrange the bordering municipalities. To confirm your placements, press the button below.
+			</p>
 			<Button
 				on:click={() => {
 					view.animate({
